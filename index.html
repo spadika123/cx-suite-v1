@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ema Agentic Support Desk - concept mockup</title>
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css">
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/bold/style.css">
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/fill/style.css">
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/duotone/style.css">
+<link rel="stylesheet" href="styles.css">
+
+</head>
+<body>
+
+<!-- ================= LANDING ================= -->
+<div class="view on" id="view-landing">
+  <div class="land">
+    <div class="landnav">
+      <div class="landlogo"><span class="lm"></span>ema</div>
+      <span style="flex:1"></span>
+      <a href="#">Product</a><a href="#">Pricing</a><a href="#">Docs</a>
+      <button class="btn" onclick="signIn()">Sign in</button>
+    </div>
+    <div class="hero">
+      <div class="hbadge">EMA AGENTIC SUPPORT DESK</div>
+      <h1>Support that resolves</h1>
+      <p>An insurance support assistant that answers from your documents and hands licensed questions to your team. Test it free today.</p>
+      <div class="sso">
+        <button class="ssobtn" onclick="signIn()"><svg width="16" height="16" viewBox="0 0 24 24"><path fill="#4285F4" d="M23 12.3c0-.8-.1-1.6-.2-2.3H12v4.5h6.2c-.3 1.4-1.1 2.6-2.3 3.4v2.8h3.7c2.2-2 3.4-5 3.4-8.4z"/><path fill="#34A853" d="M12 24c3.1 0 5.7-1 7.6-2.8l-3.7-2.8c-1 .7-2.3 1.1-3.9 1.1-3 0-5.5-2-6.4-4.7H1.8v2.9C3.7 21.4 7.6 24 12 24z"/><path fill="#FBBC05" d="M5.6 14.8c-.2-.7-.4-1.4-.4-2.2s.1-1.5.4-2.2V7.5H1.8C1 9.1.6 10.9.6 12.6s.4 3.5 1.2 5.1l3.8-2.9z"/><path fill="#EA4335" d="M12 5.2c1.7 0 3.2.6 4.4 1.7l3.3-3.3C17.7 1.6 15.1.5 12 .5 7.6.5 3.7 3.1 1.8 7l3.8 2.9c.9-2.7 3.4-4.7 6.4-4.7z"/></svg>Continue with Google</button>
+        <button class="ssobtn" onclick="signIn()"><svg width="16" height="16" viewBox="0 0 24 24"><rect fill="#F25022" x="1" y="1" width="10" height="10"/><rect fill="#7FBA00" x="13" y="1" width="10" height="10"/><rect fill="#00A4EF" x="1" y="13" width="10" height="10"/><rect fill="#FFB900" x="13" y="13" width="10" height="10"/></svg>Continue with Microsoft</button>
+      </div>
+      <div class="finetext">Free to build and test. Going live starts with our team.</div>
+    </div>
+    <div class="feat">
+      <div class="fcard"><div class="fi"><i class="ph-fill ph-books"></i></div><div class="ft">Knows insurance on day one</div><div class="fs">State rules and coverage terms are built in. It reads your website at sign-in.</div></div>
+      <div class="fcard"><div class="fi"><i class="ph-fill ph-shield-check"></i></div><div class="ft">Rules you control</div><div class="fs">Write rules in plain English or pull them from your SOPs. Its never-list is written down for your compliance team.</div></div>
+      <div class="fcard"><div class="fi"><i class="ph-fill ph-flask"></i></div><div class="ft">Test suites, packaged</div><div class="fs">Each category ships with a safety test suite that tracks your rules.</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ================= ONBOARDING ================= -->
+<div class="view" id="view-onboard">
+  <div style="max-width:660px;margin:0 auto;padding:52px 24px 80px;">
+    <div class="landlogo" style="margin-bottom:30px;"><span class="lm"></span>ema</div>
+    <h1 style="font-size:26px;font-weight:700;letter-spacing:-.4px;">Welcome, Maria</h1>
+    <p style="font-size:14px;color:var(--fg2);margin:7px 0 22px;">Two quick things and your workspace is ready.</p>
+    <div class="card">
+      <div class="ct">What best describes your role?</div>
+      <div class="chips" id="rolechips">
+        <div class="chip" onclick="obRole(this)">Head of customer support</div>
+        <div class="chip" onclick="obRole(this)">CX or operations lead</div>
+        <div class="chip" onclick="obRole(this)">IT or engineering</div>
+        <div class="chip" onclick="obRole(this)">Founder or exec</div>
+        <div class="chip" onclick="obRole(this)">Something else</div>
+      </div>
+    </div>
+    <div id="obcompany" style="display:none;">
+      <div class="crawlcard">
+        <div class="cl"><i class="ph-fill ph-sparkle"></i> While you signed in, Ema read northlakeauto.com</div>
+        <div class="found"><i class="ph-bold ph-check"></i>Help centre - 42 articles found and ready to search</div>
+        <div class="found"><i class="ph-bold ph-check"></i>Claim-filing page and required documents list</div>
+        <div class="found"><i class="ph-bold ph-check"></i>Guest pay-my-bill page (pay.northlakeauto.com)</div>
+        <div class="found"><i class="ph-bold ph-check"></i>Hours, phone numbers and licensed-agent contact routes</div>
+      </div>
+      <div class="card">
+        <div class="ct">Tell us about your company</div>
+        <div class="cs">Drafted from your website.</div>
+        <textarea rows="3">Northlake Auto Insurance is a personal-auto MGA with about 30,000 policies across 12 states. Most customer contacts are about billing and claim status. Licensed producers handle all policy changes.</textarea>
+      </div>
+      <div class="card">
+        <div class="ct">Line of business</div>
+        <div class="chips"><div class="chip on">Personal auto</div><div class="chip">Warranty / protection plans</div><div class="chip">Home</div><div class="chip">Health</div></div>
+      </div>
+      <div class="card">
+        <div class="ct">States you serve</div>
+        <div class="cs">Each state&rsquo;s licensing rules apply automatically.</div>
+        <div class="chips"><div class="chip on">TX</div><div class="chip on">CA</div><div class="chip on">FL</div><div class="chip on">NY</div><div class="chip on">OH</div><div class="chip on">GA</div><div class="chip on">NC</div><div class="chip on">AZ</div><div class="chip on">CO</div><div class="chip on">WA</div><div class="chip on">TN</div><div class="chip on">MO</div><div class="chip">+ Add</div></div>
+      </div>
+      <button class="btn primary lg" onclick="obDone()">Continue <i class="ph ph-arrow-right"></i></button>
+    </div>
+  </div>
+</div>
+
+<!-- ================= GOOGLE OAUTH MOCK ================= -->
+<div class="gauth" id="gauth"><div id="gbody" style="width:100%;display:flex;flex-direction:column;align-items:center;"></div></div>
+
+<!-- ================= BOOT / UPGRADE OVERLAY ================= -->
+<div class="boot" id="boot">
+  <div class="bootglow"></div>
+  <div class="bootcol">
+    <div class="bootlogo"><span class="lm"></span><i class="ph-fill ph-sparkle spark"></i></div>
+    <div class="bootstage" id="bootstage">Setting up your workspace</div>
+    <div class="bootbarwrap"><div class="bootbar"><i id="bootbarfill" style="width:8%"></i></div><div class="bootcap" id="bootcap">Ema · Setting up your workspace</div></div>
+  </div>
+</div>
+
+<!-- ================= WIZARD (full-screen takeover) ================= -->
+<!-- ================= APP SHELL (dark sidebar) ================= -->
+<div class="shell" id="shell">
+  <div class="sbslot">
+    <div class="sbar">
+      <div class="sbrand"><span class="lm"></span><b>Ema</b><span>· Support Desk</span></div>
+      <div class="snav">
+        <button class="sitem active" data-nav="home" onclick="setView('home')"><i class="ph ph-house"></i><span>Home</span></button>
+        <button class="sitem" data-nav="sandbox" onclick="setView('sandbox')"><i class="ph ph-flask"></i><span>Sandbox</span></button>
+        <button class="sitem" data-nav="users" onclick="setView('users')"><i class="ph ph-users-three"></i><span>Users</span></button>
+        <button class="sitem" data-nav="connections" onclick="setView('connections')"><i class="ph ph-plugs-connected"></i><span>Connections</span></button>
+        <div class="scta" id="scta" onclick="setView('upgrade')">
+          <div class="t1"><span class="tile"><i class="ph-fill ph-rocket-launch"></i></span>Go live</div>
+          <div class="t2">See plans</div>
+        </div>
+      </div>
+      <div class="sfoot"><span class="av">M</span><div><div class="nm">Maria Chen</div><div class="rl" id="planlabel">Sandbox · free</div></div></div>
+    </div>
+  </div>
+  <div class="mainslot"><div class="maincard">
+    <div class="wiz" id="wiz">
+  <div class="wizhead">
+    <span style="font-size:12px;color:var(--fg3);cursor:pointer;" onclick="exitWizard()">Home</span>
+    <span style="font-size:12px;color:var(--fg3);margin:0 7px;">/</span>
+    <b style="font-size:14px;">Northlake Policy Assist</b>
+    <span class="badge warning" style="margin-left:10px" id="wizstatebadge">Draft · in setup</span>
+    <span style="flex:1"></span>
+    <button class="btn ghost sm" onclick="exitWizard()"><i class="ph ph-x"></i> Exit setup</button>
+  </div>
+  <div class="wizbody">
+    <div class="wizrail" id="stepper"></div>
+    <div class="wizmain"><div class="wizcol" id="steps"></div></div>
+  </div>
+  <div class="wizfoot"><div class="in" id="wizfootin"></div></div>
+</div>
+    <!-- Builder chat (Autopilot / orchestrator) -->
+    <div class="view" id="view-builder" style="display:none;height:100%;flex-direction:column;">
+      <div class="wizhead">
+        <span style="font-size:12px;color:var(--fg3);cursor:pointer;" onclick="setView('home')">Home</span>
+        <span style="font-size:12px;color:var(--fg3);margin:0 7px;">/</span>
+        <b style="font-size:14px;">Build your own Support Agent</b>
+        <span class="badge ai" style="margin-left:10px">Beta</span>
+        <span style="flex:1"></span>
+        <button class="btn ghost sm" onclick="setView('home')"><i class="ph ph-x"></i> Close</button>
+      </div>
+      <div id="apthread" style="flex:1;overflow:auto;min-height:0;display:flex;flex-direction:column;justify-content:center;">
+        <div id="apwelcome" style="padding:20px 24px;display:flex;flex-direction:column;align-items:center;gap:8px;">
+          <span class="lm" style="width:36px;height:36px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#7fd49a,#1f8844);display:block;"></span>
+          <div style="font-size:16px;font-weight:600;margin-top:4px;">What should we build?</div>
+          <div style="font-size:12.5px;color:var(--fg3);text-align:center;max-width:300px;line-height:17px;">Describe the support agent you want. I&rsquo;ll draft its sections, rules and connections for your review.</div>
+          <div style="display:flex;flex-direction:column;gap:8px;width:100%;max-width:520px;margin-top:8px;" id="approm"></div>
+        </div>
+        <div id="aplog" style="max-width:720px;width:100%;margin:0 auto;padding:16px 24px;display:none;"></div>
+      </div>
+      <div style="flex-shrink:0;background:#fff;padding:10px 20px 14px;border-top:1px solid var(--beige-200);">
+        <div style="max-width:720px;margin:0 auto;display:flex;gap:8px;align-items:center;border:1px solid var(--beige-400);border-radius:12px;padding:6px 6px 6px 14px;background:#fff;">
+          <input type="text" id="bin" placeholder="Tell me what to build or improve&hellip;" style="border:none;box-shadow:none;padding:6px 0;flex:1;" onfocus="this.parentElement.style.boxShadow='0 0 0 3px rgba(31,136,68,.15)'" onblur="this.parentElement.style.boxShadow='none'">
+          <button class="btn primary sm" onclick="bSend()"><i class="ph ph-arrow-up"></i></button>
+        </div>
+      </div>
+    </div>
+    <!-- Users -->
+    <div class="view" id="view-users" style="display:none;height:100%;flex-direction:column;">
+      <div class="ghead"><div class="grow"><div class="gtile"><i class="ph-fill ph-users-three"></i></div><div style="flex:1"><h2>Users</h2><div class="gdesc">Who can see and change what in this workspace</div></div><button class="btn primary sm" onclick="openInviteUser()"><i class="ph ph-user-plus"></i> Invite</button></div><div style="height:10px"></div></div>
+      <div class="mainscroll"><div class="pagepad fadeup" id="usersbody"></div></div>
+    </div>
+    <!-- config / assistant home -->
+    <div class="view" id="view-config" style="display:none;height:100%;flex-direction:column;">
+      <div class="ghead">
+        <div class="grow">
+          <div class="gtile"><i class="ph-fill ph-chat-circle-text"></i></div>
+          <div style="flex:1;min-width:0">
+            <h2 style="display:flex;align-items:center;gap:10px;">Northlake Policy Assist <span class="badge info" id="modebadge">Sandbox mode</span></h2>
+            <div class="gdesc">Customer support assistant · personal auto · 12 states</div>
+          </div>
+          <div style="display:flex;gap:8px;flex-shrink:0;">
+            <button class="btn sm" onclick="openWizard()"><i class="ph ph-pencil-simple"></i> Edit setup</button>
+            <button class="btn sm" onclick="setView('sandbox')"><i class="ph ph-flask"></i> Open sandbox</button>
+            <button class="btn primary sm" id="gheadcta" onclick="openSales()">Contact sales</button>
+          </div>
+        </div>
+        <div class="tabstrip" id="cfgtabs">
+          <button class="tab on" data-t="overview" onclick="cfgTab('overview')">Overview</button>
+          <button class="tab" data-t="transcripts" onclick="cfgTab('transcripts')">Conversations</button>
+          <button class="tab" data-t="tests" onclick="cfgTab('tests')">Safety tests</button>
+          <button class="tab" data-t="audit" onclick="cfgTab('audit')">Audit</button>
+          <button class="tab" data-t="metrics" onclick="cfgTab('metrics')">Metrics</button>
+        </div>
+      </div>
+      <div class="mainscroll"><div class="pagepad fadeup" id="cfgbody"></div></div>
+    </div>
+    <!-- home -->
+    <div class="view" id="view-home" style="display:none;height:100%;flex-direction:column;">
+      <div class="ghead"><div class="grow"><div class="gtile"><i class="ph-fill ph-house"></i></div><div><h2>Home</h2><div class="gdesc">Northlake Auto Insurance workspace</div></div></div><div style="height:10px"></div></div>
+      <div class="mainscroll"><div class="pagepad fadeup" id="homebody"></div></div>
+    </div>
+    <!-- sandbox -->
+    <div class="view" id="view-sandbox" style="display:none;height:100%;flex-direction:column;">
+      <div class="ghead">
+        <div class="grow">
+          <div class="gtile"><i class="ph-fill ph-flask"></i></div>
+          <div style="flex:1"><h2 style="display:flex;align-items:center;gap:10px;">Sandbox test <span class="badge info">Synthetic data</span></h2>
+          <div class="gdesc">Chat with your assistant exactly as you configured it</div></div>
+          <button class="btn sm" id="sbback" onclick="sandboxFromSetup?openWizard():setView('config')"><i class="ph ph-arrow-left"></i> <span id="sbbacklbl">Back</span></button>
+        </div>
+        <div style="height:10px"></div>
+      </div>
+      <div class="mainscroll"><div class="pagepad">
+        <div style="display:flex;gap:14px;flex-wrap:wrap;">
+          <div style="flex:1;min-width:270px;">
+            <div class="card">
+              <div class="ct">Try it like a customer would</div>
+              <div class="cs">You are <b>Jordan Reyes</b>, a synthetic policyholder.</div>
+              <div style="font-size:12.5px;line-height:1.7;color:var(--fg2);">Your configuration is real. The people and payments are synthetic. The quick asks in the chat are your script.</div>
+            </div>
+          </div>
+          <div style="flex:1;min-width:300px;">
+            <div class="chatbox">
+              <div class="chathead"><i class="ph-fill ph-shield-check"></i> Northlake Auto - Policy Assist <span style="margin-left:auto;display:flex;align-items:center;gap:6px;font-size:10.5px;opacity:.85;cursor:pointer;" onclick="document.getElementById('sblog').classList.toggle('norules')"><i class="ph ph-check-square" style="font-size:13px"></i> Rules fired</span></div>
+              <div class="chatlog" id="sblog"></div>
+              <div class="qbtns" id="sbq"></div>
+              <div class="chatin"><input type="text" id="sbin" placeholder="Message Policy Assist…"><button class="btn primary sm" onclick="sbSend()">Send</button></div>
+            </div>
+          </div>
+        </div>
+      </div></div>
+    </div>
+    <!-- upgrade page -->
+    <div class="view" id="view-upgrade" style="display:none;height:100%;flex-direction:column;">
+      <div class="ghead">
+        <div class="grow">
+          <div class="gtile" style="background:var(--purple-100);border-color:var(--purple-300);color:var(--purple-800)"><i class="ph-fill ph-sparkle"></i></div>
+          <div style="flex:1"><h2>Plans</h2>
+          <div class="gdesc">Sandbox: free. Live traffic: enterprise contract.</div></div>
+          <button class="btn sm" onclick="setView('config')"><i class="ph ph-arrow-left"></i> Back</button>
+        </div>
+        <div style="height:10px"></div>
+      </div>
+      <div class="mainscroll"><div class="pagepad fadeup" id="upgradebody"></div></div>
+    </div>
+    <!-- connections (in-shell) -->
+    <div class="view" id="view-connections" style="display:none;height:100%;flex-direction:column;">
+      <div class="ghead">
+        <div class="grow">
+          <div class="gtile"><i class="ph-fill ph-plugs-connected"></i></div>
+          <div style="flex:1"><h2>Connections</h2>
+          <div class="gdesc">The sandbox needs no connections. Connect now or invite your IT team.</div></div>
+        </div>
+        <div style="height:10px"></div>
+      </div>
+      <div class="mainscroll"><div class="pagepad fadeup" id="connbody"></div></div>
+    </div>
+    <!-- owner persona view -->
+    <div class="view" id="view-owner" style="display:none;height:100%;flex-direction:column;">
+      <div class="ghead">
+        <div class="grow">
+          <div class="gtile"><i class="ph-fill ph-credit-card"></i></div>
+          <div style="flex:1"><h2 style="display:flex;align-items:center;gap:10px;">Billing &amp; payments <span id="ownersig"></span></h2>
+          <div class="gdesc">You own this category · Northlake workspace</div></div>
+        </div>
+        <div style="height:10px"></div>
+      </div>
+      <div class="mainscroll"><div class="pagepad fadeup" id="ownerbody"></div></div>
+    </div>
+  </div></div>
+</div>
+
+<!-- ================= DEMO NAV ================= -->
+<div class="demonav" id="demonav">
+  <span style="padding:0 4px;">Mock views</span>
+  <span class="dpill" data-v="landing" onclick="demoGo('landing')">Landing</span>
+  <span class="dpill" data-v="onboard" onclick="setView('onboard')">Onboarding</span>
+  <span class="dpill" data-v="wizard" onclick="demoGo('wizard')">Setup</span>
+  <span class="dpill" data-v="sandbox" onclick="demoGo('sandbox')">Sandbox</span>
+  <span class="dpill" data-v="config" onclick="demoGo('config')">Workspace</span>
+  <span class="dpill" data-v="upgrade" onclick="demoGo('upgrade')">Plans</span>
+  <span class="dpill" id="personapill" onclick="togglePersona()">View as r.patel</span>
+  <span class="dpill" id="statepill" onclick="setDemoState(demoState==='fresh'?'worked':'fresh')">Load worked example</span>
+</div>
+
+<!-- ================= SANDBOX FAB ================= -->
+<button id="testfab" onclick="setView('sandbox')"><span id="testdot"></span> Open sandbox</button>
+
+<!-- ================= PAY PAGE ================= -->
+<div class="paypage" id="paypage">
+  <div class="paycard">
+    <div style="font-size:11px;color:#888;letter-spacing:.1em;text-transform:uppercase;margin-bottom:10px;">Secure payment · stand-in page</div>
+    <div style="font-size:19px;font-weight:700;margin-bottom:3px;">Northlake Auto Insurance</div>
+    <div style="font-size:13px;color:#555;margin-bottom:18px;">Policy NL-4821 · Amount due <b>$132.40</b></div>
+    <div style="font-size:11px;color:#888;margin-bottom:4px;">CARD NUMBER</div>
+    <input type="text" value="4242 4242 4242 4242" style="margin-bottom:10px;font-family:var(--font-mono);">
+    <div style="display:flex;gap:10px;margin-bottom:16px;">
+      <input type="text" value="12/28" style="flex:1"><input type="text" value="123" style="flex:1">
+    </div>
+    <button class="btn primary lg" style="width:100%" onclick="payDone()">Pay $132.40</button>
+    <div style="font-size:10.5px;color:#999;margin-top:12px;text-align:center;">This page stands in for your payment provider. Card details never touch Ema.</div>
+  </div>
+</div>
+
+<!-- ================= MODAL + TOAST ================= -->
+<div class="modal" id="modal" onclick="if(event.target===this)closeModal()"><div class="modalbody" id="modalbody"></div></div>
+<div id="toast"></div>
+
+<script src="app.js"></script>
+</body>
+</html>

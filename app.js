@@ -258,18 +258,17 @@ function covChips(){ return ''; }
 /* ---- category data ---- */
 const CATS=[
  {id:'cov', icon:'book-open-text', name:'Coverage questions', desc:'What plans cover, definitions, how claims work', tier:'g', tiert:'Handles it',
-  answers:[], resolves:[], rules:[], docs:['northlake_auto_policy_TC_2026.pdf'],
+  answers:[], resolves:[], docs:['northlake_auto_policy_TC_2026.pdf'],
   pack:[
    {q:'What does comprehensive cover?', a:'Explains comprehensive covers most physical damage that isn&rsquo;t a collision - theft, hail, fire, animals - and cites the customer&rsquo;s terms.', cite:'northlake_auto_policy_TC_2026.pdf · p.8', v:'ok', d:'answers'},
    {q:'Is a rental car covered while mine is in the shop?', a:'Answers only from the customer&rsquo;s own elected coverages - rental reimbursement is optional, so it checks before answering.', cite:'northlake_auto_policy_TC_2026.pdf · p.11', v:'ok', d:'answers'}
   ], more:10, signed:null, rerun:null,
-  cfg:true, qshow:true, qsel:0,
-  qtypes:[
-   {name:'Plan coverage', icon:'shield-check', rules:[
-    {t:'Answer what the customer&rsquo;s own plan covers', cfg:'policy'},
-    {t:'General coverage questions from your documents, labelled general', cfg:'sop', cite:'northlake_auto_policy_TC_2026.pdf · p.8'}]},
-   {name:'Definitions', icon:'book-open', rules:[{t:'Explain terms - deductible, comprehensive vs collision', cfg:'sop', cite:'northlake_auto_policy_TC_2026.pdf · p.3'}]},
-   {name:'How to file a claim', icon:'file-plus', rules:[{t:'Walk through the filing steps and required documents', cfg:'sop', cite:'northlake_auto_policy_TC_2026.pdf · p.5'}]}],
+  cfg:true, qshow:true,
+  rules:[
+   {t:'Answer what the customer&rsquo;s own plan covers', cfg:'policy', src:'Ema pack · GLBA'},
+   {t:'General coverage questions answered from your documents, labelled general', cfg:'sop', cite:'northlake_auto_policy_TC_2026.pdf · p.8', src:'Ema pack · GLBA'},
+   {t:'Explain terms - deductible, comprehensive vs collision', cfg:'sop', cite:'northlake_auto_policy_TC_2026.pdf · p.3', src:'Ema pack'},
+   {t:'Walk through the filing steps and required documents', cfg:'sop', cite:'northlake_auto_policy_TC_2026.pdf · p.5', src:'Ema pack'}],
   issues:[
    {kind:'conflict', title:'Your SOP vs Ema&rsquo;s state facts', body:'Your SOP appendix quotes Texas minimum liability figures that do not match the current Texas Department of Insurance figures in Ema&rsquo;s state facts.',
     a:['Use current figures','Using Ema&rsquo;s current figures, kept up to date from the Texas DOI. Your SOP appendix is flagged for updating.'], b:['Keep SOP figures','Keeping your SOP figures. Logged on the audit trail.']},
@@ -277,53 +276,50 @@ const CATS=[
     fix:['Upload state documents','All 12 states covered - state plan documents uploaded and cited in this section&rsquo;s next test run.']}],
   dest:'support@northlakeauto.com', deps:[['Website crawl','ok'],['Pre-built insurance knowledge','ok']], owner:null},
  {id:'clm', icon:'wrench', name:'Claim status', desc:'Where is my claim, adjuster, repair timing', tier:'a', tiert:'Verify first',
-  answers:[], resolves:[], rules:[], docs:[],
+  answers:[], resolves:[], docs:[],
   pack:[
    {q:'Where is my claim?', a:'Reads the claim stage and adjuster back after identity is verified.', cite:'Live read from claim records', v:null, d:'answers'},
    {q:'When will my repair be done?', a:'Shares the shop&rsquo;s current estimate and says it can change - never a promised date.', cite:'Rule: never promise a repair date', v:null, d:'answers'}
   ], more:8, signed:null, rerun:null,
-  cfg:true, qshow:true, qsel:0,
-  qtypes:[
-   {name:'Claim status', icon:'magnifying-glass', rules:[
-    {t:'Read back the claim stage and adjuster', cfg:'policy'},
-    {t:'Never promise a repair completion date', cfg:'sop', cite:null}]},
-   {name:'Complaints', icon:'warning-circle', rules:[{t:'Capture the complaint and file it to your team', cfg:'ticket'}]}],
+  cfg:true, qshow:true,
+  rules:[
+   {t:'Read back the claim stage and adjuster', cfg:'policy', src:'Ema pack · GLBA'},
+   {t:'Never promise a repair completion date', cfg:'sop', cite:null, src:'Ema pack · CA claims code'},
+   {t:'Capture complaints and file them to your team', cfg:'ticket', src:'Ema pack'}],
   issues:[
    {kind:'gap', title:'No claims SOP uploaded', body:'The assistant can read a claim&rsquo;s status, and will answer process questions from general knowledge only.',
     fix:['Upload claims SOP','claims_handling_SOP.docx uploaded · rules extracted for your review.']}],
   dest:'support@northlakeauto.com', deps:[['Policy records','ok'],['Salesforce','miss']], owner:null},
  {id:'bil', icon:'credit-card', name:'Billing & payments', desc:'Balance, pay a bill, ID card, disputes', tier:'a', tiert:'Verify first',
-  answers:[], resolves:[], rules:[], docs:['billing_and_disputes_SOP_v3.docx'],
+  answers:[], resolves:[], docs:['billing_and_disputes_SOP_v3.docx'],
   pack:[
    {q:'What&rsquo;s my balance and when is it due?', a:'Reads the balance and due date back after identity is verified, and offers the payment link.', cite:'Live read from policy records', v:'ok', d:'answers'},
    {q:'Why did my bill go up this month?', a:'Explains the premium change from the billing history, and offers a licensed agent for anything about coverage pricing.', cite:'billing_and_disputes_SOP_v3.docx · p.4', v:'ok', d:'answers'},
    {q:'I want to dispute a charge', a:'Captures the dispute with the details and files it to your billing team.', cite:'billing_and_disputes_SOP_v3.docx · p.5', v:'ok', d:'ticket'}
   ], more:22, signed:null, rerun:null,
-  cfg:true, qshow:true, qsel:0,
-  qtypes:[
-   {name:'Balance &amp; due dates', icon:'wallet', rules:[{t:'Read back balance and due date after the identity check', cfg:'policy'}]},
-   {name:'Payments', icon:'credit-card', rules:[
-    {t:'Take payment through the secure payment link only', cfg:'other', other:'Send the hosted payment link; confirm when the processor reports success.'},
-    {t:'No payments on accounts in collections', cfg:'sop', cite:'billing_and_disputes_SOP_v3.docx · p.9'},
-    {t:'Refunds above $500 go to a supervisor', cfg:'ticket', sopAdded:true, cite:'billing_and_disputes_SOP_v3.docx · p.7'}]},
-   {name:'Disputes &amp; complaints', icon:'scales', rules:[{t:'Capture the dispute and file it to your billing team', cfg:'ticket'}]}],
+  cfg:true, qshow:true,
+  rules:[
+   {t:'Read back balance and due date only after the identity check', cfg:'policy', src:'Ema pack · GLBA'},
+   {t:'Take payment through the secure payment link only', cfg:'other', other:'Send the hosted payment link; confirm when the processor reports success.', src:'Ema pack'},
+   {t:'No payments on accounts in collections', cfg:'sop', cite:'billing_and_disputes_SOP_v3.docx · p.9'},
+   {t:'Refunds above $500 go to a supervisor', cfg:'ticket', sopAdded:true, cite:'billing_and_disputes_SOP_v3.docx · p.7'},
+   {t:'Capture disputes and file them to your billing team', cfg:'ticket', src:'Ema pack'}],
   issues:[
    {kind:'conflict', title:'Your SOP vs your website', body:'Your SOP (p.9) says no payments on accounts in collections. Your website FAQ says any account can pay online.',
     a:['Follow the SOP','Following the SOP. Collections accounts route to your billing team; the website FAQ is flagged for updating.'], b:['Follow the website','Following the website. Any account gets the payment link.']},
    {kind:'gap', title:'Your SOP has no dispute section', body:'The assistant will capture a dispute and file it, and cannot explain your dispute process.', dispute:true}],
   dest:'Billing team queue · Salesforce', deps:[['Policy records','ok'],['Payment provider','ok'],['Salesforce','miss']], owner:{email:'r.patel@northlakeauto.com', status:'Joined'}},
  {id:'pol', icon:'user-switch', name:'Policy changes & advice', desc:'Add or remove a car or driver, advice, quotes', tier:'r', tiert:'Always to a person',
-  answers:[], resolves:[], rules:[], docs:[],
+  answers:[], resolves:[], docs:[],
   pack:[
    {q:'Can you add my new car right now?', a:'Collects the details, files the request to a producer, and never says the car is covered before the change is final.', cite:'Rule: never &ldquo;covered&rdquo; before final', v:'ok', d:'ticket'},
    {q:'How much would a second driver cost?', a:'Declines to quote - a licensed act - and opens a producer request with the details attached.', cite:'Rule: licensed-act routing', v:'ok', d:'ticket'}
   ], more:6, signed:null, rerun:null,
-  cfg:true, qshow:true, qsel:0,
-  qtypes:[
-   {name:'Add or remove a vehicle or driver', icon:'car', rules:[
-    {t:'Collect the full details, then file to a producer', cfg:'ticket'},
-    {t:'Never say &ldquo;covered&rdquo; before the change is final', cfg:'sop', cite:'producer_manual_2026.pdf · p.11'}]},
-   {name:'Quotes', icon:'calculator', rules:[{t:'Quotes and pricing go to a licensed producer', cfg:'ticket'}]}],
+  cfg:true, qshow:true,
+  rules:[
+   {t:'Collect the full details, then file to a producer', cfg:'ticket', src:'Ema pack · State licensing'},
+   {t:'Never say &ldquo;covered&rdquo; before the change is final', cfg:'sop', cite:'producer_manual_2026.pdf · p.11', src:'Ema pack · State licensing'},
+   {t:'Quotes and pricing go to a licensed producer', cfg:'ticket', src:'Ema pack · State licensing'}],
   issues:[
    {kind:'conflict', title:'Your SOP vs an Ema built-in rule', body:'Your SOP (p.11) tells agents a newly added car <i>is covered</i> during the 14-day grace period. Ema&rsquo;s built-in rule never says &ldquo;covered&rdquo; before the change is final.',
     a:['Keep Ema&rsquo;s rule','Keeping Ema&rsquo;s rule. The assistant explains the grace period and a licensed agent confirms coverage.'], b:['Follow the SOP','Following your SOP. Logged on the audit trail.']}],
@@ -386,7 +382,7 @@ function applyFreshSeeds(){
   CATS.forEach(c=>{
     c.signed=null; c.rerun=null; c.issues=[]; c.owner=null; c.owners=[];
     c.cfg=false; c.qshow=false; c.qsel=0;
-    (c.qtypes||[]).forEach(q=>{ q.rules=q.rules.filter(r=>!r.sopAdded&&!r.user); q.rules.forEach(r=>{ if(r.cfg==='sop') r.cite=null; }); });
+    c.rules=(c.rules||[]).filter(r=>!r.sopAdded&&!r.user); c.rules.forEach(r=>{ if(r.cfg==='sop') r.cite=null; }); c.suiteRun=false; c.tlog=[];
     c.pack.forEach(x=>{ x.v=null;
       if(x.cite.includes('.pdf')||x.cite.includes('.docx')) x.cite='Pack answer · drafted from general knowledge'; });
   });
@@ -639,42 +635,148 @@ function ruleAux(i,qi,ri,r){
   }
   return '';
 }
-function qRuleRow(i,qi,ri,r){
+function inferCfg(text,prev){
+  const t=text.toLowerCase();
+  if(/ticket|file(s|d)? (it|to)|route|hand(s)? (off|to)|escalat/.test(t)) return 'ticket';
+  if(/policy record|balance|their (own )?(policy|coverage|plan)|customer&rsquo;s own|customer's own|read(s)? back/.test(t)) return 'policy';
+  if(/sop|procedure|document/.test(t)) return 'sop';
+  return prev||'sop';
+}
+function cfgLabel(r){
+  if(r.cfg==='ticket') return ['ticket','Files a ticket'];
+  if(r.cfg==='policy') return ['identification-card','Reads the customer&rsquo;s policy'];
+  if(r.cfg==='other') return ['sparkle', esc(r.other||'Custom behaviour')];
+  return ['quotes', r.cite?('Answers from your SOP'):'Answers from your SOP - none uploaded yet'];
+}
+function qRuleRow(i,ri,r){
   const badges=[];
+  if(r.src) badges.push('<span class="rbadge sop">'+r.src+'</span>');
   if(r.sopAdded) badges.push('<span class="rbadge sop">From your SOP</span>');
   if(r.user) badges.push('<span class="rbadge you">Yours · not supported by SOP</span>');
-  const cfgChips=CFGS.map(cf=>'<div class="chip'+(r.cfg===cf[0]?' on':'')+'" style="font-size:11px;padding:4px 10px;" onclick="setRuleCfg('+i+','+qi+','+ri+',\''+cf[0]+'\')">'+cf[1]+'</div>').join('');
-  return '<div style="border:1px solid var(--beige-200);border-radius:10px;padding:11px 13px;margin-bottom:8px;background:#fff;">'
-    +'<div style="font-size:12.5px;font-weight:600;margin-bottom:7px;">'+r.t+' '+badges.join(' ')+'</div>'
-    +'<div class="chips" style="margin-bottom:7px;">'+cfgChips+'</div>'
-    +'<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:11.5px;">'+ruleAux(i,qi,ri,r)+'</div></div>';
+  const [ic,lbl]=cfgLabel(r);
+  const inferred='<span class="depchip" style="background:var(--purple-100);border-color:var(--purple-300);color:var(--purple-800);"><i class="ph-bold ph-'+ic+'"></i>'+lbl+'</span>';
+  const flash=r.flash?'<div class="fadeup" style="font-size:11px;color:var(--purple-800);margin-top:5px;"><i class="ph-fill ph-sparkle"></i> Ema understood: '+r.flash+'</div>':'';
+  return '<div style="border:1px solid var(--beige-200);border-radius:10px;padding:11px 13px;margin-bottom:8px;background:#fff;" id="qr_'+i+'_'+ri+'">'
+    +'<div style="display:flex;gap:8px;align-items:flex-start;">'
+    +'<div style="flex:1;font-size:12.5px;font-weight:600;line-height:1.5;">'+r.t+' '+badges.join(' ')+'</div>'
+    +'<span class="iconbtn" title="Edit" onclick="editQRule('+i+','+ri+')"><i class="ph ph-pencil-simple"></i></span>'
+    +'<span class="iconbtn" title="Remove" onclick="removeQRule('+i+','+ri+')"><i class="ph ph-x"></i></span></div>'
+    +'<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:11.5px;margin-top:7px;">'+inferred+ruleAux(i,0,ri,r)+'</div>'
+    +flash+'</div>';
 }
-function qtypeSection(i){
+function editQRule(i,ri){
+  const r=CATS[i].rules[ri];
+  const box=document.getElementById('qr_'+i+'_'+ri);
+  box.innerHTML='<textarea rows="2" id="qredit" style="font-size:12.5px;">'+r.t.replace(/&rsquo;/g,String.fromCharCode(8217)).replace(/&ldquo;|&rdquo;/g,String.fromCharCode(34))+'</textarea>'
+    +'<div style="margin-top:7px;display:flex;gap:6px;align-items:center;"><button class="btn sm primary" onclick="saveQRule('+i+','+ri+')">Save</button><button class="btn sm" onclick="refreshCat()">Cancel</button>'
+    +'<span style="font-size:11px;color:var(--fg3);">Write it in your words. Ema reads the sentence and sets the behaviour.</span></div>';
+  box.querySelector('textarea').focus();
+}
+function saveQRule(i,ri){
+  const r=CATS[i].rules[ri];
+  const v=(document.getElementById('qredit').value.trim())||r.t;
+  r.t=esc(v);
+  const was=r.cfg;
+  r.cfg=inferCfg(v,r.cfg);
+  if(r.cfg!=='sop') r.cite=r.cite||null;
+  const [ic,lbl]=cfgLabel(r);
+  r.flash=lbl+(was!==r.cfg?' (changed)':'');
+  markDirty(); refreshCat();
+  setTimeout(()=>{delete r.flash;},2600);
+}
+function removeQRule(i,ri){
+  if(!confirm('Remove this rule? Removals are logged.')) return;
+  CATS[i].rules.splice(ri,1);
+  markDirty(); refreshCat(); toast('Rule removed');
+}
+/* ---- Tell Ema: conversational section config ---- */
+function tellEmaCard(i){
   const c=CATS[i];
-  const tiles=(c.qtypes||[]).map((q,qi)=>{
-    const on=c.qsel===qi;
-    return '<div onclick="CATS['+i+'].qsel='+qi+';refreshCat()" style="cursor:pointer;position:relative;border:1.5px solid '+(on?'var(--green-500)':'var(--beige-300)')+';background:'+(on?'var(--green-50)':'#fff')+';border-radius:12px;padding:13px 15px;">'
-      +'<span class="iconbtn" style="position:absolute;top:6px;right:6px;width:22px;height:22px;font-size:12px;" title="Remove" onclick="event.stopPropagation();removeQt('+i+','+qi+')"><i class="ph ph-x"></i></span>'
-      +'<i class="ph ph-'+(q.icon||'squares-four')+'" style="font-size:19px;color:'+(on?'var(--green-800)':'var(--fg2)')+';"></i>'
-      +'<div style="font-size:13px;font-weight:700;padding-right:20px;margin-top:6px;">'+q.name+'</div>'
-      +'<div style="font-size:11px;color:var(--fg3);margin-top:2px;">'+q.rules.length+' rule'+(q.rules.length!==1?'s':'')+'</div>'
-      +(on?'<div style="position:absolute;left:50%;bottom:-8px;transform:translateX(-50%) rotate(45deg);width:14px;height:14px;background:var(--green-50);border-right:1.5px solid var(--green-500);border-bottom:1.5px solid var(--green-500);"></div>':'')
-      +'</div>';
-  }).join('');
-  const add='<div onclick="addQt('+i+')" style="cursor:pointer;border:1.5px dashed var(--beige-500);border-radius:12px;padding:13px 15px;display:flex;align-items:center;justify-content:center;color:var(--fg2);font-size:12.5px;font-weight:600;">+ Add</div>';
-  const sel=(c.qtypes||[])[c.qsel];
-  const rules= sel ? `<div style="margin-top:14px;border:1.5px solid var(--green-500);border-radius:12px;background:var(--green-50);padding:14px 15px;">
-    <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;"><i class="ph ph-${sel.icon||'squares-four'}" style="font-size:16px;color:var(--green-800);"></i><b style="font-size:13px;">${sel.name}</b><span style="font-size:11.5px;color:var(--fg3);">· rules</span></div>
-    <div style="font-size:11.5px;color:var(--fg3);margin-bottom:11px;">These apply whenever a customer asks about ${sel.name.toLowerCase()}.</div>
-    ${sel.rules.map((r,ri)=>qRuleRow(i,c.qsel,ri,r)).join('')}
-    <button class="addbtn" style="background:#fff;" onclick="addQRule(${i},${c.qsel})">+ Add a rule</button>
-  </div>` : '';
-  return `<div class="card">
-    <div class="ct">Types of queries</div>
-    <div class="cs">Click a box to see and set its rules.</div>
-    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px;">${tiles}${add}</div>
-    ${rules}
+  const log=(c.tlog||[]).map(m=>m.role==='user'
+    ? '<div style="display:flex;justify-content:flex-end;margin:6px 0;"><div style="max-width:85%;background:var(--green-100);border-radius:14px;padding:8px 13px;font-size:12.5px;">'+m.t+'</div></div>'
+    : '<div style="font-size:12.5px;line-height:1.55;margin:6px 0;color:var(--fg1);"><i class="ph-fill ph-sparkle" style="color:var(--purple-800);font-size:12px;"></i> '+m.t+'</div>').join('');
+  return `<div class="card" style="border-color:var(--purple-300);">
+    <div class="ct"><i class="ph-fill ph-sparkle" style="color:var(--purple-800)"></i> Tell Ema</div>
+    <div class="cs">Say what this section should do. Ema turns it into rules and routing.</div>
+    ${log?'<div style="margin-bottom:8px;">'+log+'</div>':''}
+    <div style="display:flex;gap:8px;align-items:center;border:1px solid var(--beige-400);border-radius:12px;padding:5px 5px 5px 13px;background:#fff;">
+      <input type="text" id="tell_${c.id}" placeholder="e.g. Never promise refund timelines; route disputes to billing" style="border:none;box-shadow:none;padding:5px 0;flex:1;" onkeydown="if(event.key==='Enter')tellEma(${i})">
+      <button class="btn primary sm" onclick="tellEma(${i})"><i class="ph ph-arrow-up"></i></button>
+    </div>
   </div>`;
+}
+function tellEma(i){
+  const c=CATS[i];
+  const inp=document.getElementById('tell_'+c.id);
+  const v=(inp&&inp.value.trim()); if(!v) return;
+  c.tlog=c.tlog||[];
+  c.tlog.push({role:'user', t:esc(v)});
+  const parts=v.split(/;|(?:\.\s+)/).map(x=>x.trim()).filter(Boolean);
+  const added=[];
+  parts.forEach(pt=>{
+    const cfg=inferCfg(pt,null);
+    c.rules.push({t:esc(pt.charAt(0).toUpperCase()+pt.slice(1)), cfg:cfg, cite:null, user:true});
+    const [ic,lbl]=cfgLabel({cfg:cfg});
+    added.push(lbl.toLowerCase());
+  });
+  c.tlog.push({role:'ema', t:'Got it. '+added.length+' rule'+(added.length>1?'s':'')+' added to '+c.name+' ('+added.join(', ')+'). Applied to your config - edit any of them below.'});
+  if(c.tlog.length>4) c.tlog=c.tlog.slice(-4);
+  const su=SUITES.find(x=>x.cat===c.id); if(su) su.n+=added.length*2;
+  markDirty(); refreshCat();
+}
+function flatRulesCard(i){
+  const c=CATS[i];
+  const s=covStat(c);
+  const sumCls = s.total===0 ? '' : (s.covered===s.total ? 'background:var(--green-200);color:var(--green-800)' : 'background:var(--orange-200);color:var(--orange-930)');
+  const summary = s.total===0 ? '' : `<div class="sumchips" style="margin-bottom:10px;"><span class="sumchip" style="${sumCls}">${s.covered} of ${s.total} SOP rules covered</span></div>`;
+  return `<div class="card">
+    <div class="ct">Rules</div>
+    <div class="cs">Three sources: Ema&rsquo;s regulation pack, your SOPs with page citations, and anything you write.</div>
+    ${summary}
+    ${c.rules.map((r,ri)=>qRuleRow(i,ri,r)).join('')}
+    <div style="font-size:11.5px;color:var(--fg3);margin-top:2px;">Want another rule? Tell Ema above, in your own words.</div>
+  </div>`;
+}
+function addFlatRule(i){
+  openModal(`
+    <div class="mt">Add a rule</div>
+    <div class="ms">Write it in your words. Ema reads the sentence and sets the behaviour. Written rules are marked as not supported by an SOP until an upload covers them.</div>
+    <textarea rows="2" id="nfrule" placeholder="e.g. Never quote a settlement amount."></textarea>
+    <div class="mfoot"><button class="btn" onclick="closeModal()">Cancel</button>
+    <button class="btn primary" onclick="confirmFlatRule(${i})">Add rule</button></div>`);
+}
+function confirmFlatRule(i){
+  const v=(document.getElementById('nfrule').value.trim())||'Never quote a settlement amount';
+  CATS[i].rules.push({t:esc(v), cfg:inferCfg(v,null), cite:null, user:true});
+  closeModal(); bumpSuite(CATS[i].id,2); markDirty(); refreshCat();
+}
+function suiteCard(i){
+  const c=CATS[i];
+  const su=SUITES.find(x=>x.cat===c.id);
+  if(!su) return '';
+  const behs=su.beh.map(b=>'<span class="badge '+b[1]+'" style="height:18px;font-size:10px;">'+b[0]+'</span>').join(' ');
+  let rail;
+  if(!enterprise){
+    rail='<span class="lockchip"><i class="ph-fill ph-lock-simple"></i> Enterprise</span> <button class="btn sm" onclick="setView(&#39;upgrade&#39;)">See what unlocks</button>';
+  } else if(c.suiteRun){
+    rail='<span class="passrate" style="font-size:20px;">100%</span> <span class="badge success" style="height:18px;font-size:10px;">'+su.n+'/'+su.n+'</span> <button class="btn sm" onclick="runSectionSuite('+i+')">Run again</button>';
+  } else {
+    rail='<button class="btn sm primary" onclick="runSectionSuite('+i+')"><i class="ph ph-play"></i> Run suite</button>';
+  }
+  return `<div class="card">
+    <div class="ct" style="justify-content:space-between;"><span style="display:flex;gap:7px;align-items:center;"><i class="ph ph-flask" style="color:var(--green-800)"></i> Test suite</span></div>
+    <div class="cs">${su.n} scenarios, generated from this section&rsquo;s rules. The count moves when the rules change.</div>
+    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">${behs}<span style="flex:1"></span>${rail}</div>
+    <div id="srun_${c.id}"></div>
+  </div>`;
+}
+function runSectionSuite(i){
+  const c=CATS[i];
+  const su=SUITES.find(x=>x.cat===c.id);
+  const box=document.getElementById('srun_'+c.id);
+  box.innerHTML='<div style="margin-top:12px;height:5px;background:var(--beige-200);border-radius:99px;overflow:hidden;"><div id="srb_'+c.id+'" style="height:100%;width:4%;background:var(--green-700);transition:width .5s ease;border-radius:99px;"></div></div><div id="srn_'+c.id+'" style="font-size:11.5px;color:var(--fg3);margin-top:7px;">Running '+su.n+' scenarios against the sandbox&hellip;</div>';
+  [30,62,100].forEach((wd,ix)=>setTimeout(()=>{const b=document.getElementById('srb_'+c.id); if(b)b.style.width=wd+'%';},600*(ix+1)));
+  setTimeout(()=>{ c.suiteRun=true; refreshCat(); toast('All '+su.n+' scenarios passed'); },2300);
 }
 function setRuleCfg(i,qi,ri,cfg){
   const r=CATS[i].qtypes[qi].rules[ri];
@@ -728,7 +830,7 @@ function abilityRows(list,kind,ci){
   if(!list.length) return '<div style="font-size:12px;color:var(--fg3);padding:6px 0;">'+(kind==='answers'?'All of this category&rsquo;s abilities take an action.':'This category only answers questions.')+'</div>';
   return list.map((s,si)=>'<div class="abrow"><span class="sw'+(s[1]?' on':'')+'" onclick="togAb('+ci+',\''+kind+'\','+si+',this)"></span>'+s[0]+'</div>').join('');
 }
-function flatRules(c){return (c.qtypes||[]).reduce((a,q)=>a.concat(q.rules),[]);}
+function flatRules(c){return c.rules||[];}
 function covStat(c){
   const sop=flatRules(c).filter(r=>r.cfg==='sop');
   return {covered:sop.filter(r=>r.cite).length, total:sop.length};
@@ -752,15 +854,15 @@ function rulesCard(i,forOwner){
   </div>`;
 }
 const SOPSIM={
- bil:{file:'billing_and_disputes_SOP_v3.docx', cites:[[1,1,'p.9'],[2,0,'p.5']],
-   newRules:[[1,{t:'Refunds above $500 go to a supervisor', cfg:'ticket', sopAdded:true, cite:'billing_and_disputes_SOP_v3.docx · p.7'}]],
+ bil:{file:'billing_and_disputes_SOP_v3.docx', cites:[[2,'p.9']],
+   newRules:[{t:'Refunds above $500 go to a supervisor', cfg:'ticket', sopAdded:true, cite:'billing_and_disputes_SOP_v3.docx · p.7'}],
    conflict:{kind:'conflict', title:'Your SOP vs your website', body:'Your SOP (p.9) says no payments on accounts in collections. Your website FAQ says any account can pay online.',
     a:['Follow the SOP','Following the SOP. Collections accounts route to your billing team; the website FAQ is flagged for updating.'], b:['Follow the website','Following the website. Any account gets the payment link.']}},
- clm:{file:'claims_handling_SOP.docx', cites:[[0,1,'p.4']],
-   newRules:[[0,{t:'Total-loss questions go to the adjuster, never estimated', cfg:'ticket', sopAdded:true, cite:'claims_handling_SOP.docx · p.9'}]]},
- cov:{file:'northlake_auto_policy_TC_2026.pdf', cites:[[0,1,'p.8'],[1,0,'p.3'],[2,0,'p.5']], newRules:[]},
- pol:{file:'producer_manual_2026.pdf', cites:[[0,1,'p.11']],
-   newRules:[[0,{t:'Log every producer hand-off with a case number', cfg:'ticket', sopAdded:true, cite:'producer_manual_2026.pdf · p.16'}]]}
+ clm:{file:'claims_handling_SOP.docx', cites:[[1,'p.4']],
+   newRules:[{t:'Total-loss questions go to the adjuster, never estimated', cfg:'ticket', sopAdded:true, cite:'claims_handling_SOP.docx · p.9'}]},
+ cov:{file:'northlake_auto_policy_TC_2026.pdf', cites:[[1,'p.8'],[2,'p.3'],[3,'p.5']], newRules:[]},
+ pol:{file:'producer_manual_2026.pdf', cites:[[1,'p.11']],
+   newRules:[{t:'Log every producer hand-off with a case number', cfg:'ticket', sopAdded:true, cite:'producer_manual_2026.pdf · p.16'}]}
 };
 function parseSOP(i){
   const c=CATS[i];
@@ -776,15 +878,13 @@ function parseSOP(i){
   setTimeout(()=>{const e=document.getElementById('sp2'); if(e)e.classList.add('show');},1000);
   setTimeout(()=>{const e=document.getElementById('sp3'); if(e)e.classList.add('show');},1700);
   setTimeout(()=>{
-    sim.cites.forEach(x=>{ const q=c.qtypes[x[0]]; const r=q&&q.rules[x[1]]; if(r&&r.cfg==='sop'&&!r.cite) r.cite=sim.file+' · '+x[2]; });
-    sim.newRules.forEach(nr=>{ const q=c.qtypes[nr[0]]; if(q) q.rules.push(JSON.parse(JSON.stringify(nr[1]))); });
+    sim.cites.forEach(x=>{ const r=c.rules[x[0]]; if(r&&r.cfg==='sop'&&!r.cite) r.cite=sim.file+' · '+x[1]; });
+    sim.newRules.forEach(nr=>{ c.rules.push(JSON.parse(JSON.stringify(nr))); });
     if(sim.conflict && !c.issues.some(x=>x.title===sim.conflict.title)) c.issues.push(JSON.parse(JSON.stringify(sim.conflict)));
     DOCS.push({file:sim.file, icon:sim.file.includes('.pdf')?'file-pdf':'file-doc', ver:'v1', date:'today', pill:'Internal', pillCls:'grey',
       cites:[[c.id, sim.cites.length+sim.newRules.length]], uploaded:true, tag:c.id});
     const su=SUITES.find(x=>x.cat===c.id); if(su) su.n+=Math.max(2,sim.newRules.length*2);
     c.qshow=true;
-    if(sim.cites.length) c.qsel=sim.cites[0][0];
-    else if(sim.newRules.length) c.qsel=sim.newRules[0][0];
     markDirty(); refreshCat();
     const s=covStat(c);
     toast(s.covered+' of '+s.total+' rules covered · '+sim.newRules.length+' new');
@@ -837,7 +937,7 @@ function catDetailHtml(i){
   const gate = (!c.cfg && persona!=='owner')
     ? `<div style="margin:4px 0 20px;"><button class="btn lg primary" onclick="CATS[${i}].cfg=true;refreshCat()"><i class="ph ph-sliders"></i> Configure this section</button>
        <div style="font-size:11.5px;color:var(--fg3);margin-top:8px;">Pack defaults run until you or an invited expert configures it.</div></div>`
-    : sopSection(i)+issuesBlock(i)+((c.qshow||persona==='owner')?qtypeSection(i):'')+universalCard(i);
+    : sopSection(i)+tellEmaCard(i)+issuesBlock(i)+((c.qshow||persona==='owner')?(flatRulesCard(i)+suiteCard(i)):'')+universalCard(i);
   return `
   <div class="steph fadeup">
     <div style="font-size:12px;color:var(--fg3);margin-bottom:8px;cursor:pointer;" onclick="curCat=null;renderStep()"><i class="ph ph-arrow-left"></i> All sections</div>
@@ -858,7 +958,7 @@ function renderOwner(){
     ? '<span class="badge success"><i class="ph-bold ph-check"></i> All '+cs.total+' SOP rules covered</span>'
     : '<span class="badge pending">'+cs.covered+' of '+cs.total+' SOP rules covered</span>';
   document.getElementById('ownerbody').innerHTML =
-    sopSection(i)+issuesBlock(i)+qtypeSection(i)+universalCard(i);
+    sopSection(i)+tellEmaCard(i)+issuesBlock(i)+flatRulesCard(i)+suiteCard(i)+universalCard(i);
 }
 function needsRule(i,xi){
   openModal(`

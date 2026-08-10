@@ -374,7 +374,7 @@ const WORKED={cats:JSON.parse(JSON.stringify(CATS)), docs:JSON.parse(JSON.string
 function applyWorkedSeeds(){
   DOCS.length=0; JSON.parse(JSON.stringify(WORKED.docs)).forEach(d=>DOCS.push(d));
   CATS.length=0; JSON.parse(JSON.stringify(WORKED.cats)).forEach(c=>CATS.push(c));
-  CATS.forEach(c=>{c.owners = c.owners && c.owners.length ? c.owners : (c.owner?[c.owner]:[]);});
+  CATS.forEach(c=>{c.owners = c.owners && c.owners.length ? c.owners : (c.owner?[c.owner]:[]); c.kstate='done';});
 }
 function applyFreshSeeds(){
   applyWorkedSeeds();
@@ -382,7 +382,7 @@ function applyFreshSeeds(){
   CATS.forEach(c=>{
     c.signed=null; c.rerun=null; c.issues=[]; c.owner=null; c.owners=[];
     c.cfg=false; c.qshow=false; c.qsel=0;
-    c.rules=(c.rules||[]).filter(r=>!r.sopAdded&&!r.user); c.rules.forEach(r=>{ if(r.cfg==='sop') r.cite=null; }); c.suiteRun=false; c.tlog=[];
+    c.rules=(c.rules||[]).filter(r=>!r.sopAdded&&!r.user); c.rules.forEach(r=>{ if(r.cfg==='sop') r.cite=null; }); c.suiteRun=false; c.tlog=[]; c.facts=[]; c.kstate='ask'; c.ksel={}; c.kext=[];
     c.pack.forEach(x=>{ x.v=null;
       if(x.cite.includes('.pdf')||x.cite.includes('.docx')) x.cite='Pack answer · drafted from general knowledge'; });
   });
@@ -598,27 +598,67 @@ function confirmInviteUser(){
 }
 function goConnections(){ if(document.getElementById('wiz').classList.contains('on')){go(3);} else {setView('connections');} }
 function universalCard(i){ return '<div class="card"><div class="ct">Universal rules</div><div class="cs">Apply to every section, always.</div>'+universalPanel(persona==='owner')+'</div>'; }
+function kEma(t){return '<div style="font-size:13px;line-height:1.55;margin:8px 0;"><i class="ph-fill ph-sparkle" style="color:var(--purple-800);font-size:12px;"></i> '+t+'</div>';}
 function sopSection(i){
   const c=CATS[i];
+  if(c.kstate!=='done') return kAsk(i);
   const uploaded=docsFor(c.id);
-  const skip=(!c.qshow&&persona!=='owner')?'<div style="text-align:center;margin-top:10px;"><button class="skiplink" onclick="CATS['+i+'].qshow=true;refreshCat()">Skip for now</button></div>':'';
+  const live=(c.deps||[]).map(d=>'<span class="depchip '+(d[1]==='ok'?'ok':'miss')+'">'+d[0]+(d[1]==='ok'?' &#10003;':' · not connected')+'</span>').join(' ');
   return `<div class="card">
-    <div class="ct">Upload your SOPs</div>
-    <div style="border:2px dashed var(--beige-500);border-radius:14px;padding:32px 20px;text-align:center;background:var(--beige-50);cursor:pointer;" onclick="parseSOP(${i})">
-      <i class="ph ph-upload-simple" style="font-size:26px;color:var(--green-800)"></i>
-      <div style="font-size:14px;font-weight:700;margin-top:8px;">Upload your SOPs for Ema to parse</div>
-      <div style="font-size:12px;color:var(--fg3);margin-top:3px;">Ema extracts rules, buckets them under your query types, and cites each back to its page.</div>
-    </div>
+    <div class="ct">Knowledge</div>
+    ${uploaded.length?uploaded.map(d=>docRowHtml(d)).join(''):'<div class="cs">Nothing uploaded yet - this section runs on the pack and general knowledge.</div>'}
+    <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;font-size:11.5px;color:var(--fg3);margin-top:10px;">Also reads live sources: ${live} <button class="connectlink" onclick="goConnections()">Open Connections</button></div>
     <div id="soparse_${c.id}" style="margin-top:10px;"></div>
-    ${uploaded.length?'<div style="margin-top:12px;">'+uploaded.map(d=>docRowHtml(d)).join('')+'</div>':''}
-    ${skip}
+    <div style="margin-top:12px;"><button class="btn sm primary" onclick="kReopen(${i})"><i class="ph-fill ph-sparkle"></i> Have more rules to add? Let Ema know</button></div>
+  </div>`;
+}
+function kReopen(i){CATS[i].kstate='ask'; refreshCat();}
+function kDone(i){CATS[i].kstate='done'; CATS[i].qshow=true; refreshCat();}
+function kTog(i,k){const c=CATS[i]; c.ksel=c.ksel||{}; c.ksel[k]=!c.ksel[k]; refreshCat();}
+function kExt(i,name){const c=CATS[i]; c.kext=c.kext||[]; if(!c.kext.includes(name)) c.kext.push(name); refreshCat();}
+function kAsk(i){
+  const c=CATS[i]; c.ksel=c.ksel||{}; c.kext=c.kext||[];
+  const pill=(k,label)=>'<div class="chip'+(c.ksel[k]?' on':'')+'" onclick="kTog('+i+',&#39;'+k+'&#39;)">'+label+'</div>';
+  let follow='';
+  if(c.ksel.docs){
+    follow+=kEma('Upload them. I&rsquo;ll split facts from procedures and cite every rule back to its page.')
+      +`<div style="border:2px dashed var(--beige-500);border-radius:14px;padding:26px 20px;text-align:center;background:var(--beige-50);cursor:pointer;margin:4px 0 10px;" onclick="parseSOP(${i})">
+        <i class="ph ph-upload-simple" style="font-size:24px;color:var(--green-800)"></i>
+        <div style="font-size:13.5px;font-weight:700;margin-top:7px;">Upload documents</div>
+        <div style="font-size:11.5px;color:var(--fg3);margin-top:2px;">SOPs, plan documents, FAQs</div>
+      </div><div id="soparse_${c.id}"></div>`;
+  }
+  if(c.ksel.ext){
+    const sysPill=(n)=>'<div class="chip'+(c.kext.includes(n)?' on':'')+'" onclick="kExt('+i+',&#39;'+n+'&#39;)">'+n+'</div>';
+    follow+=kEma('Which systems?')
+      +'<div class="chips" style="margin-bottom:8px;">'+sysPill('Salesforce')+sysPill('Guidewire')+sysPill('Payment provider')+'<div class="chip" onclick="toast(&#39;Type it below and Ema will work out how to read it&#39;)">Something else</div></div>';
+    if(c.kext.length) follow+=kEma(c.kext.join(', ')+' noted. Connect '+(c.kext.length>1?'them':'it')+' once in Connections and I&rsquo;ll read from there - every section shares the same connection.')
+      +'<div style="margin-bottom:10px;"><button class="btn sm" onclick="goConnections()">Open Connections <i class="ph ph-arrow-right"></i></button></div>';
+  }
+  if(c.ksel.other){
+    follow+=kEma('Tell me where - type it below and I&rsquo;ll work out how to read it.');
+  }
+  const log=(c.tlog||[]).map(m=>m.role==='user'
+    ? '<div style="display:flex;justify-content:flex-end;margin:6px 0;"><div style="max-width:85%;background:var(--green-100);border-radius:14px;padding:8px 13px;font-size:12.5px;">'+m.t+'</div></div>'
+    : kEma(m.t)).join('');
+  return `<div class="card" style="border-color:var(--purple-300);">
+    <div class="ct"><i class="ph-fill ph-sparkle" style="color:var(--purple-800)"></i> Knowledge</div>
+    ${kEma('Where do the rules on '+c.name.toLowerCase().replace('&amp;','and')+' live?')}
+    <div class="chips" style="margin-bottom:6px;">${pill('docs','Documents')}${pill('ext','External systems')}${pill('other','Somewhere else')}</div>
+    ${follow}
+    ${log}
+    <div style="display:flex;gap:8px;align-items:center;border:1px solid var(--beige-400);border-radius:12px;padding:5px 5px 5px 13px;background:#fff;margin-top:8px;">
+      <input type="text" id="tell_${c.id}" placeholder="Or just tell Ema&hellip;" style="border:none;box-shadow:none;padding:5px 0;flex:1;" onkeydown="if(event.key==='Enter')tellEma(${i})">
+      <button class="btn primary sm" onclick="tellEma(${i})"><i class="ph ph-arrow-up"></i></button>
+    </div>
+    <div style="text-align:center;margin-top:10px;"><button class="skiplink" onclick="kDone(${i})">Done for now</button></div>
   </div>`;
 }
 const CFGS=[['policy','Answer from customer policy'],['sop','Answer from SOP'],['ticket','File a ticket'],['other','Do something else']];
 function ruleAux(i,qi,ri,r){
   if(r.cfg==='sop') return r.cite
     ? '<span class="depchip ok"><i class="ph-bold ph-quotes"></i>Cites '+r.cite+'</span>'
-    : '<span class="depchip miss"><i class="ph-bold ph-warning"></i>No SOP covers this yet - upload above</span>';
+    : '<span class="depchip"><i class="ph-bold ph-upload-simple"></i>Upload your SOP to make it yours</span>';
   if(r.cfg==='ticket'){
     return CONN.sf==='connected'
       ? '<span class="depchip ok"><i class="ph-bold ph-check"></i>Files a case in Salesforce</span>'
@@ -646,13 +686,13 @@ function cfgLabel(r){
   if(r.cfg==='ticket') return ['ticket','Files a ticket'];
   if(r.cfg==='policy') return ['identification-card','Reads the customer&rsquo;s policy'];
   if(r.cfg==='other') return ['sparkle', esc(r.other||'Custom behaviour')];
-  return ['quotes', r.cite?('Answers from your SOP'):'Answers from your SOP - none uploaded yet'];
+  return ['quotes', r.cite?('Answers from your SOP'):'Answers from general knowledge, labelled general'];
 }
 function qRuleRow(i,ri,r){
   const badges=[];
-  if(r.src) badges.push('<span class="rbadge sop">'+r.src+'</span>');
+  if(r.src && r.src!=='Ema pack') badges.push('<span class="rbadge sop">'+r.src.replace('Ema pack · ','')+'</span>');
   if(r.sopAdded) badges.push('<span class="rbadge sop">From your SOP</span>');
-  if(r.user) badges.push('<span class="rbadge you">Yours · not supported by SOP</span>');
+  if(r.user) badges.push('<span class="rbadge you">Yours</span>');
   const [ic,lbl]=cfgLabel(r);
   const inferred='<span class="depchip" style="background:var(--purple-100);border-color:var(--purple-300);color:var(--purple-800);"><i class="ph-bold ph-'+ic+'"></i>'+lbl+'</span>';
   const flash=r.flash?'<div class="fadeup" style="font-size:11px;color:var(--purple-800);margin-top:5px;"><i class="ph-fill ph-sparkle"></i> Ema understood: '+r.flash+'</div>':'';
@@ -728,7 +768,7 @@ function flatRulesCard(i){
   const c=CATS[i];
   const s=covStat(c);
   const sumCls = s.total===0 ? '' : (s.covered===s.total ? 'background:var(--green-200);color:var(--green-800)' : 'background:var(--orange-200);color:var(--orange-930)');
-  const summary = s.total===0 ? '' : `<div class="sumchips" style="margin-bottom:10px;"><span class="sumchip" style="${sumCls}">${s.covered} of ${s.total} SOP rules covered</span></div>`;
+  const summary = s.total===0 ? '' : `<div class="sumchips" style="margin-bottom:10px;"><span class="sumchip" style="${sumCls}">${s.covered} of ${s.total} rules covered by your documents</span></div>`;
   return `<div class="card">
     <div class="ct">Rules</div>
     <div class="cs">Three sources: Ema&rsquo;s regulation pack, your SOPs with page citations, and anything you write.</div>
@@ -856,12 +896,15 @@ function rulesCard(i,forOwner){
 const SOPSIM={
  bil:{file:'billing_and_disputes_SOP_v3.docx', cites:[[2,'p.9']],
    newRules:[{t:'Refunds above $500 go to a supervisor', cfg:'ticket', sopAdded:true, cite:'billing_and_disputes_SOP_v3.docx · p.7'}],
+   facts:[{t:'Payments post to the account within one business day', p:'p.2'},{t:'Refunds return to the original payment method', p:'p.7'}],
    conflict:{kind:'conflict', title:'Your SOP vs your website', body:'Your SOP (p.9) says no payments on accounts in collections. Your website FAQ says any account can pay online.',
     a:['Follow the SOP','Following the SOP. Collections accounts route to your billing team; the website FAQ is flagged for updating.'], b:['Follow the website','Following the website. Any account gets the payment link.']}},
  clm:{file:'claims_handling_SOP.docx', cites:[[1,'p.4']],
+   facts:[{t:'Repair timelines are estimates, revised as parts arrive', p:'p.3'},{t:'Replacement-vehicle dropoffs can be rescheduled twice with 24 hours&rsquo; notice', p:'p.8'}],
    newRules:[{t:'Total-loss questions go to the adjuster, never estimated', cfg:'ticket', sopAdded:true, cite:'claims_handling_SOP.docx · p.9'}]},
- cov:{file:'northlake_auto_policy_TC_2026.pdf', cites:[[1,'p.8'],[2,'p.3'],[3,'p.5']], newRules:[]},
+ cov:{file:'northlake_auto_policy_TC_2026.pdf', facts:[{t:'Rental reimbursement covers up to $40 a day for 30 days when elected', p:'p.11'},{t:'Comprehensive covers theft, hail, fire and animal strikes', p:'p.8'}], cites:[[1,'p.8'],[2,'p.3'],[3,'p.5']], newRules:[]},
  pol:{file:'producer_manual_2026.pdf', cites:[[1,'p.11']],
+   facts:[{t:'A newly added vehicle has a 14-day grace period pending underwriting', p:'p.11'}],
    newRules:[{t:'Log every producer hand-off with a case number', cfg:'ticket', sopAdded:true, cite:'producer_manual_2026.pdf · p.16'}]}
 };
 function parseSOP(i){
@@ -873,13 +916,16 @@ function parseSOP(i){
   box.innerHTML=`<div class="loaderbox" style="margin-bottom:10px;text-align:left;padding:16px 18px;"><div style="display:flex;gap:10px;align-items:center;margin-bottom:8px;"><div class="spin" style="margin:0;width:16px;height:16px;"></div><b style="font-size:12.5px;">Parsing ${sim.file}&hellip;</b></div>
     <div class="lline" id="sp1">Reading the document&hellip;</div>
     <div class="lline" id="sp2">Extracting rules&hellip;</div>
-    <div class="lline" id="sp3">Checking your ${nRules} rules against it&hellip;</div></div>`;
+    <div class="lline" id="sp3">Splitting facts from procedures&hellip; facts indexed for answers</div>
+    <div class="lline" id="sp4">Checking your ${nRules} rules against it&hellip;</div></div>`;
   setTimeout(()=>{const e=document.getElementById('sp1'); if(e)e.classList.add('show');},250);
   setTimeout(()=>{const e=document.getElementById('sp2'); if(e)e.classList.add('show');},1000);
-  setTimeout(()=>{const e=document.getElementById('sp3'); if(e)e.classList.add('show');},1700);
+  setTimeout(()=>{const e=document.getElementById('sp3'); if(e)e.classList.add('show');},1500);
+  setTimeout(()=>{const e=document.getElementById('sp4'); if(e)e.classList.add('show');},2000);
   setTimeout(()=>{
     sim.cites.forEach(x=>{ const r=c.rules[x[0]]; if(r&&r.cfg==='sop'&&!r.cite) r.cite=sim.file+' · '+x[1]; });
     sim.newRules.forEach(nr=>{ c.rules.push(JSON.parse(JSON.stringify(nr))); });
+    c.kstate='done';
     if(sim.conflict && !c.issues.some(x=>x.title===sim.conflict.title)) c.issues.push(JSON.parse(JSON.stringify(sim.conflict)));
     DOCS.push({file:sim.file, icon:sim.file.includes('.pdf')?'file-pdf':'file-doc', ver:'v1', date:'today', pill:'Internal', pillCls:'grey',
       cites:[[c.id, sim.cites.length+sim.newRules.length]], uploaded:true, tag:c.id});
@@ -887,7 +933,7 @@ function parseSOP(i){
     c.qshow=true;
     markDirty(); refreshCat();
     const s=covStat(c);
-    toast(s.covered+' of '+s.total+' rules covered · '+sim.newRules.length+' new');
+    toast('Parsed · '+sim.newRules.length+' rule'+(sim.newRules.length!==1?'s':'')+' extracted');
   },2400);
 }
 function docsCard(i){
@@ -937,7 +983,7 @@ function catDetailHtml(i){
   const gate = (!c.cfg && persona!=='owner')
     ? `<div style="margin:4px 0 20px;"><button class="btn lg primary" onclick="CATS[${i}].cfg=true;refreshCat()"><i class="ph ph-sliders"></i> Configure this section</button>
        <div style="font-size:11.5px;color:var(--fg3);margin-top:8px;">Pack defaults run until you or an invited expert configures it.</div></div>`
-    : sopSection(i)+tellEmaCard(i)+issuesBlock(i)+((c.qshow||persona==='owner')?(flatRulesCard(i)+suiteCard(i)):'')+universalCard(i);
+    : sopSection(i)+issuesBlock(i)+((c.qshow||persona==='owner')?(flatRulesCard(i)+suiteCard(i)):'');
   return `
   <div class="steph fadeup">
     <div style="font-size:12px;color:var(--fg3);margin-bottom:8px;cursor:pointer;" onclick="curCat=null;renderStep()"><i class="ph ph-arrow-left"></i> All sections</div>
@@ -958,7 +1004,7 @@ function renderOwner(){
     ? '<span class="badge success"><i class="ph-bold ph-check"></i> All '+cs.total+' SOP rules covered</span>'
     : '<span class="badge pending">'+cs.covered+' of '+cs.total+' SOP rules covered</span>';
   document.getElementById('ownerbody').innerHTML =
-    sopSection(i)+tellEmaCard(i)+issuesBlock(i)+flatRulesCard(i)+suiteCard(i)+universalCard(i);
+    sopSection(i)+issuesBlock(i)+flatRulesCard(i)+suiteCard(i);
 }
 function needsRule(i,xi){
   openModal(`
@@ -1886,7 +1932,7 @@ function cfgTab(t){
 
 /* =============== sandbox =============== */
 let sbVerified=false;
-const SBQ=[["What’s my deductible?","ded"],["Where is my claim?","claim"],["I want to pay my bill","pay"],["Add my new car to my policy","car"]];
+const SBQ=[["Reschedule my replacement car dropoff - I’m not home","resched"],["What’s my deductible?","ded"],["Where is my claim?","claim"],["I want to pay my bill","pay"],["Add my new car to my policy","car"]];
 function greetText(){
   if(welcomeMsg!==WELCOME_DEFAULT) return esc(welcomeMsg);
   if(tone==='neutral') return 'I can help with billing, ID cards, and claim status. Coverage changes go to a licensed agent.';
@@ -1932,12 +1978,24 @@ function sbAsk(kind,label){
     claim:()=>sbPush("Claim <b>CLM-2287</b> is at <b>estimate approved</b>. Your adjuster is Dana Whitfield. The shop’s current estimate is next Friday, and that can change - want status updates by text? <i>[rule: never promise a repair date]</i>","bot"),
     pay:()=>{sbPush(TONEPREV[tone]+" Here is your secure payment link:","bot");
       sbPush('<button class="btn primary sm" onclick="openPay()">Pay $132.40 →</button>',"bot");},
+    resched:()=>{
+      sbPush("Your replacement car dropoff is <b>Tuesday 2pm</b> with AutoLend, on claim CLM-2287.","bot");
+      sbPush("Connection · read: appointment record","sys");
+      setTimeout(()=>{
+        sbPush("Your plan allows two reschedules with 24 hours&rsquo; notice, and you&rsquo;ve used none. I can offer <b>Wednesday 10-12</b> or <b>Thursday 2-4</b>.","bot");
+        sbPush("Knowledge · claims SOP p.8: reschedules allowed twice, 24h notice","sys");
+        setTimeout(()=>{sbPush("Thursday 2-4 works","usr");
+          setTimeout(()=>{
+            sbPush("Done - moved to <b>Thursday 2-4pm</b>. AutoLend is confirmed and a text is on its way. <i>[rule: chat-completable within entitlement]</i>","bot");
+            sbPush("Connection · write: reschedule confirmed · logged on the claim","sys");
+          },900);},900);},1100);
+    },
     car:()=>{sbPush("Adding a vehicle needs a licensed agent - I’ll collect the details for them. What’s the VIN, purchase date, main driver, and where the car is parked overnight?","bot");
       setTimeout(()=>{sbPush("VIN 4T1G11AK5PU034821, bought Saturday, me, home garage","usr");
         setTimeout(()=>{sbPush("That’s a <b>2023 Toyota Camry</b> (VIN decoded). I’ve filed request <b>#00413</b> to our licensed producer team with your details and this conversation attached - they’ll confirm once it’s final. Until then I can’t say the car is covered. <i>[rule: never “covered” before final]</i>","bot");
           sbPush("Case created in Salesforce · Producer queue · logs as an assisted resolution","sys");},900);},900);}
   };
-  if(kind==='ded'||kind==='claim'||kind==='pay'){
+  if(kind==='ded'||kind==='claim'||kind==='pay'||kind==='resched'){
     if(!sbVerified){sbVerify(answers[kind]);} else {answers[kind]();}
   } else answers[kind]();
 }

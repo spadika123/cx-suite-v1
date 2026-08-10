@@ -48,6 +48,28 @@ function setView(v){
   demoHi(v);
 }
 const EXTRAS=[];
+/* Ema-asks: needs discovered from rules, answered with pills, routed to Connections */
+const NEEDS=[];
+function emaAsksFor(c){
+  if(!c.easks) return '';
+  return c.easks.map((q,qi)=>{
+    if(q.done) return kEma(q.doneMsg);
+    if(q.thinking) return kEma(q.q)+kThink();
+    const pills=q.opts.map((o,oi)=>'<div class="apchip" onclick="eAnswer(&#39;'+c.id+'&#39;,'+qi+','+oi+')">'+o[0]+'</div>').join('');
+    return kEma(q.q)+'<div style="display:flex;gap:8px;flex-wrap:wrap;margin:2px 0 10px;">'+pills+'</div>';
+  }).join('');
+}
+function eAnswer(cid,qi,oi){
+  const c=CATS.find(x=>x.id===cid); if(!c) return;
+  const q=c.easks[qi]; const o=q.opts[oi];
+  q.thinking=true; refreshCat();
+  setTimeout(()=>{
+    delete q.thinking;
+    q.done=true; q.doneMsg=o[1];
+    if(o[2]) NEEDS.push({conn:o[2].conn, need:o[2].need, from:c.name, done:false});
+    markDirty(); refreshCat();
+  },650);
+}
 function obRole(el){
   document.querySelectorAll('#rolechips .chip').forEach(x=>x.classList.remove('on'));
   el.classList.add('on');
@@ -61,8 +83,8 @@ const AP_PROMPTS=[
  ['wrench','An IT helpdesk agent for employees'],
  ['calendar-check','An appointment rescheduling agent']
 ];
-function apEma(html){document.getElementById('aplog').insertAdjacentHTML('beforeend','<div class="fadeup" style="padding:12px 4px;font-size:14px;line-height:1.6;color:var(--fg1);">'+html+'</div>'); apScroll();}
-function apUser(text){document.getElementById('aplog').insertAdjacentHTML('beforeend','<div style="display:flex;justify-content:flex-end;padding:4px 0;"><div style="max-width:85%;background:var(--green-100);border-radius:16px;padding:10px 16px;font-size:14px;line-height:1.5;">'+esc(text)+'</div></div>'); apScroll();}
+function apEma(html){document.getElementById('aplog').insertAdjacentHTML('beforeend','<div class="apmsg">'+html+'</div>'); apScroll();}
+function apUser(text){document.getElementById('aplog').insertAdjacentHTML('beforeend','<div class="apbub"><div>'+esc(text)+'</div></div>'); apScroll();}
 function apScroll(){const t=document.getElementById('apthread'); t.scrollTop=t.scrollHeight;}
 function renderBuilder(){
   if(builderInit) return;
@@ -298,6 +320,11 @@ const CATS=[
    {q:'I want to dispute a charge', a:'Captures the dispute with the details and files it to your billing team.', cite:'billing_and_disputes_SOP_v3.docx · p.5', v:'ok', d:'ticket'}
   ], more:22, signed:null, rerun:null,
   cfg:true, qshow:true,
+  easks:[
+   {q:'Quick one: customers will ask why a bill changed. Today I can read totals only. Should I read individual charges too?',
+    opts:[
+     ['Yes, read charges','Noted. I&rsquo;ll set up charge-level reads with your IT admin when Guidewire connects - it shows on the Guidewire card in Connections.',{conn:'gw', need:'Invoice line items (charge-level reads) - asked by Billing'}],
+     ['Totals are enough','Understood - I&rsquo;ll answer from totals and hand charge-detail questions to your team.',null]]}],
   rules:[
    {t:'Read back balance and due date only after the identity check', cfg:'policy', src:'Ema pack · GLBA'},
    {t:'Take payment through the secure payment link only', cfg:'other', other:'Send the hosted payment link; confirm when the processor reports success.', src:'Ema pack'},
@@ -383,12 +410,13 @@ function applyFreshSeeds(){
     c.signed=null; c.rerun=null; c.issues=[]; c.owner=null; c.owners=[];
     c.cfg=false; c.qshow=false; c.qsel=0;
     c.rules=(c.rules||[]).filter(r=>!r.sopAdded&&!r.user); c.rules.forEach(r=>{ if(r.cfg==='sop') r.cite=null; }); c.suiteRun=false; c.tlog=[]; c.facts=[]; c.kstate='ask'; c.ksel={}; c.kext=[];
+    (c.easks||[]).forEach(q=>{delete q.done; delete q.doneMsg;});
     c.pack.forEach(x=>{ x.v=null;
       if(x.cite.includes('.pdf')||x.cite.includes('.docx')) x.cite='Pack answer · drafted from general knowledge'; });
   });
 }
 function setDemoState(s){
-  demoState=s; EXTRAS.length=0;
+  demoState=s; EXTRAS.length=0; NEEDS.length=0;
   if(s==='fresh'){CH.chat=false; CH.where=null;} else {CH.chat=true; CH.where='website';}
   if(s==='fresh') applyFreshSeeds(); else applyWorkedSeeds();
   curCat=null; dirty=false; persona='admin';
@@ -598,7 +626,8 @@ function confirmInviteUser(){
 }
 function goConnections(){ if(document.getElementById('wiz').classList.contains('on')){go(3);} else {setView('connections');} }
 function universalCard(i){ return '<div class="card"><div class="ct">Universal rules</div><div class="cs">Apply to every section, always.</div>'+universalPanel(persona==='owner')+'</div>'; }
-function kEma(t){return '<div style="font-size:13px;line-height:1.55;margin:8px 0;"><i class="ph-fill ph-sparkle" style="color:var(--purple-800);font-size:12px;"></i> '+t+'</div>';}
+function kEma(t){return '<div class="apmsg">'+t+'</div>';}
+function kThink(){return '<div class="apthink"><i></i><i></i><i></i></div>';}
 function sopSection(i){
   const c=CATS[i];
   if(c.kstate!=='done') return kAsk(i);
@@ -609,16 +638,24 @@ function sopSection(i){
     ${uploaded.length?uploaded.map(d=>docRowHtml(d)).join(''):'<div class="cs">Nothing uploaded yet - this section runs on the pack and general knowledge.</div>'}
     <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;font-size:11.5px;color:var(--fg3);margin-top:10px;">Also reads live sources: ${live} <button class="connectlink" onclick="goConnections()">Open Connections</button></div>
     <div id="soparse_${c.id}" style="margin-top:10px;"></div>
+    ${emaAsksFor(c)}
     <div style="margin-top:12px;"><button class="btn sm primary" onclick="kReopen(${i})"><i class="ph-fill ph-sparkle"></i> Have more rules to add? Let Ema know</button></div>
   </div>`;
 }
 function kReopen(i){CATS[i].kstate='ask'; refreshCat();}
+function kUpload(i){
+  const c=CATS[i]; c.kstate='ask'; c.ksel=c.ksel||{}; c.ksel.docs=true;
+  refreshCat();
+  const m=document.querySelector('.wizmain')||document.getElementById('ownerbody');
+  if(m&&m.scrollTo) m.scrollTo({top:0, behavior:'smooth'});
+  toast('Upload is open at the top');
+}
 function kDone(i){CATS[i].kstate='done'; CATS[i].qshow=true; refreshCat();}
 function kTog(i,k){const c=CATS[i]; c.ksel=c.ksel||{}; c.ksel[k]=!c.ksel[k]; refreshCat();}
 function kExt(i,name){const c=CATS[i]; c.kext=c.kext||[]; if(!c.kext.includes(name)) c.kext.push(name); refreshCat();}
 function kAsk(i){
   const c=CATS[i]; c.ksel=c.ksel||{}; c.kext=c.kext||[];
-  const pill=(k,label)=>'<div class="chip'+(c.ksel[k]?' on':'')+'" onclick="kTog('+i+',&#39;'+k+'&#39;)">'+label+'</div>';
+  const pill=(k,label,icon)=>'<div class="apchip'+(c.ksel[k]?' on':'')+'" onclick="kTog('+i+',&#39;'+k+'&#39;)">'+(c.ksel[k]?'<i class="ph-bold ph-check"></i>':'<i class="ph ph-'+icon+'"></i>')+label+'</div>';
   let follow='';
   if(c.ksel.docs){
     follow+=kEma('Upload them. I&rsquo;ll split facts from procedures and cite every rule back to its page.')
@@ -629,27 +666,28 @@ function kAsk(i){
       </div><div id="soparse_${c.id}"></div>`;
   }
   if(c.ksel.ext){
-    const sysPill=(n)=>'<div class="chip'+(c.kext.includes(n)?' on':'')+'" onclick="kExt('+i+',&#39;'+n+'&#39;)">'+n+'</div>';
+    const sysPill=(n)=>'<div class="apchip'+(c.kext.includes(n)?' on':'')+'" onclick="kExt('+i+',&#39;'+n+'&#39;)">'+(c.kext.includes(n)?'<i class="ph-bold ph-check"></i>':'')+n+'</div>';
     follow+=kEma('Which systems?')
-      +'<div class="chips" style="margin-bottom:8px;">'+sysPill('Salesforce')+sysPill('Guidewire')+sysPill('Payment provider')+'<div class="chip" onclick="toast(&#39;Type it below and Ema will work out how to read it&#39;)">Something else</div></div>';
+      +'<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px;">'+sysPill('Salesforce')+sysPill('Guidewire')+sysPill('Payment provider')+'<div class="apchip" onclick="toast(&#39;Type it below and Ema will work out how to read it&#39;)">Something else</div></div>';
     if(c.kext.length) follow+=kEma(c.kext.join(', ')+' noted. Connect '+(c.kext.length>1?'them':'it')+' once in Connections and I&rsquo;ll read from there - every section shares the same connection.')
       +'<div style="margin-bottom:10px;"><button class="btn sm" onclick="goConnections()">Open Connections <i class="ph ph-arrow-right"></i></button></div>';
   }
   if(c.ksel.other){
     follow+=kEma('Tell me where - type it below and I&rsquo;ll work out how to read it.');
   }
+  follow+=emaAsksFor(c);
   const log=(c.tlog||[]).map(m=>m.role==='user'
-    ? '<div style="display:flex;justify-content:flex-end;margin:6px 0;"><div style="max-width:85%;background:var(--green-100);border-radius:14px;padding:8px 13px;font-size:12.5px;">'+m.t+'</div></div>'
-    : kEma(m.t)).join('');
+    ? '<div class="apbub"><div>'+m.t+'</div></div>'
+    : kEma(m.t)).join('') + (c.kthink?kThink():'');
   return `<div class="card" style="border-color:var(--purple-300);">
     <div class="ct"><i class="ph-fill ph-sparkle" style="color:var(--purple-800)"></i> Knowledge</div>
     ${kEma('Where do the rules on '+c.name.toLowerCase().replace('&amp;','and')+' live?')}
-    <div class="chips" style="margin-bottom:6px;">${pill('docs','Documents')}${pill('ext','External systems')}${pill('other','Somewhere else')}</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px;">${pill('docs','Documents','file-text')}${pill('ext','External systems','plugs-connected')}${pill('other','Somewhere else','chats-circle')}</div>
     ${follow}
     ${log}
-    <div style="display:flex;gap:8px;align-items:center;border:1px solid var(--beige-400);border-radius:12px;padding:5px 5px 5px 13px;background:#fff;margin-top:8px;">
-      <input type="text" id="tell_${c.id}" placeholder="Or just tell Ema&hellip;" style="border:none;box-shadow:none;padding:5px 0;flex:1;" onkeydown="if(event.key==='Enter')tellEma(${i})">
-      <button class="btn primary sm" onclick="tellEma(${i})"><i class="ph ph-arrow-up"></i></button>
+    <div class="apcomposer" style="margin-top:8px;">
+      <input type="text" id="tell_${c.id}" placeholder="Or just tell Ema&hellip;" onkeydown="if(event.key==='Enter')tellEma(${i})">
+      <button class="apsend" onclick="tellEma(${i})"><i class="ph ph-arrow-up"></i></button>
     </div>
     <div style="text-align:center;margin-top:10px;"><button class="skiplink" onclick="kDone(${i})">Done for now</button></div>
   </div>`;
@@ -658,7 +696,7 @@ const CFGS=[['policy','Answer from customer policy'],['sop','Answer from SOP'],[
 function ruleAux(i,qi,ri,r){
   if(r.cfg==='sop') return r.cite
     ? '<span class="depchip ok"><i class="ph-bold ph-quotes"></i>Cites '+r.cite+'</span>'
-    : '<span class="depchip"><i class="ph-bold ph-upload-simple"></i>Upload your SOP to make it yours</span>';
+    : '<button class="apchip" onclick="kUpload('+i+')"><i class="ph ph-upload-simple"></i>Upload your SOP to make it yours</button>';
   if(r.cfg==='ticket'){
     return CONN.sf==='connected'
       ? '<span class="depchip ok"><i class="ph-bold ph-check"></i>Files a case in Salesforce</span>'
@@ -759,10 +797,14 @@ function tellEma(i){
     const [ic,lbl]=cfgLabel({cfg:cfg});
     added.push(lbl.toLowerCase());
   });
-  c.tlog.push({role:'ema', t:'Got it. '+added.length+' rule'+(added.length>1?'s':'')+' added to '+c.name+' ('+added.join(', ')+'). Applied to your config - edit any of them below.'});
-  if(c.tlog.length>4) c.tlog=c.tlog.slice(-4);
-  const su=SUITES.find(x=>x.cat===c.id); if(su) su.n+=added.length*2;
-  markDirty(); refreshCat();
+  c.kthink=true; refreshCat();
+  setTimeout(()=>{
+    c.kthink=false;
+    c.tlog.push({role:'ema', t:'Got it. '+added.length+' rule'+(added.length>1?'s':'')+' added to '+c.name+' ('+added.join(', ')+'). Applied to your config - edit any of them below.'});
+    if(c.tlog.length>4) c.tlog=c.tlog.slice(-4);
+    const su=SUITES.find(x=>x.cat===c.id); if(su) su.n+=added.length*2;
+    markDirty(); refreshCat();
+  },700);
 }
 function flatRulesCard(i){
   const c=CATS[i];
@@ -1277,10 +1319,11 @@ function connectionsBody(){
   const gwBadge = CONN.gw==='connected' ? '<span class="badge success" style="height:18px"><i class="ph-bold ph-check-circle"></i> Connected</span>' : CONN.gw==='waiting' ? '<span class="badge pending" style="height:18px">Waiting on IT</span>':'';
   const payFoot = enterprise ? '<button class="connectlink" onclick="toast(\'Set up with your Ema team\')">Connect provider</button><span class="badge ai">Production</span>'
     : '<span class="badge success"><i class="ph-bold ph-check"></i> Stand-in active</span><span style="color:var(--fg3)">sandbox</span>';
+  const gwNeeds=NEEDS.filter(n=>n.conn==='gw'&&!n.done).map(n=>'<div class="authpanel" style="margin:0 14px 12px;"><i class="ph-fill ph-sparkle" style="color:var(--purple-800);font-size:12px;"></i> Ema needs: '+n.need+'</div>').join('');
   return `
 <div class="igrid">
   ${connCardHtml('sf','cloud','Salesforce Service Cloud','Cases, contact fields, documents · escalation queues', sfFoot, sfBadge)}
-  ${connCardHtml('gw','bank','Guidewire Cloud','PolicyCenter, ClaimCenter and BillingCenter over the Cloud API', gwFoot, gwBadge)}
+  ${connCardHtml('gw','bank','Guidewire Cloud','PolicyCenter, ClaimCenter and BillingCenter over the Cloud API', gwFoot, gwBadge).replace('<div class="ifoot"', gwNeeds+'<div class="ifoot"')}
   ${connCardHtml('pay','credit-card','Payment provider','Hosted payment links', payFoot, enterprise?'':'<span class="badge success" style="height:18px"><i class="ph-bold ph-check-circle"></i> Active</span>')}
   ${connCardHtml('web','globe','Your website','northlakeauto.com · crawled at signup, re-crawled weekly','<span class="badge success"><i class="ph-bold ph-check"></i> Connected</span><span style="color:var(--fg3)">42 articles</span>','<span class="badge success" style="height:18px"><i class="ph-bold ph-check-circle"></i> Connected</span>')}
 </div>
@@ -1451,7 +1494,8 @@ function gwMap(){
   const clm=gwmMatched('Claim stage','&ldquo;where is my claim&rdquo;','claim/v1 › claim › status','In review')
     +gwmMatched('Adjuster &amp; contact','','claim/v1 › claim › assignedUser','J. Ramos · ext 4821')
     +gwmReview('gwrev1','Payment / check status','&ldquo;has my payment been issued&rdquo;','claim/v1 › claim › checks[ ] › status','Issued 09/02');
-  const bil=gwmMatched('Balance','','billing/v1 › account › balance','$142.60')
+  const bil=gwmMatched('Invoice line items','&ldquo;why did my bill change&rdquo; · asked by Billing','billing/v1 › invoices › lineItems[ ]','+$16.00 · driver added')
+    +gwmMatched('Balance','','billing/v1 › account › balance','$142.60')
     +gwmMatched('Next due date','','billing/v1 › invoices › next › dueDate','12 Sep 2026')
     +gwmReview('gwrev2','Autopay status','read only · enrolment runs on the processor','billing/v1 › account › paymentInstruments','On');
   openModal(`
@@ -1474,6 +1518,7 @@ function gwMap(){
   document.getElementById('modalbody').dataset.pending='2';
 }
 function gwDone(){
+  NEEDS.filter(n=>n.conn==='gw').forEach(n=>n.done=true);
   toast('Connecting…');
   setTimeout(()=>{
     CONN.gw='connected';

@@ -107,6 +107,7 @@
         <button class="sitem" data-nav="sandbox" onclick="setView('sandbox')"><i class="ph ph-flask"></i><span>Sandbox</span></button>
         <button class="sitem" data-nav="users" onclick="setView('users')"><i class="ph ph-users-three"></i><span>Users</span></button>
         <button class="sitem" data-nav="connections" onclick="setView('connections')"><i class="ph ph-plugs-connected"></i><span>Connections</span></button>
+        <button class="sitem" onclick="openShelf()"><i class="ph ph-books"></i><span>Library</span><span class="libbadge" id="libcount2" style="margin-left:auto;">0</span></button>
         <div class="scta" id="scta" onclick="setView('upgrade')">
           <div class="t1"><span class="tile"><i class="ph-fill ph-rocket-launch"></i></span>Go live</div>
           <div class="t2">See plans</div>
@@ -159,12 +160,12 @@
     </div>
     <!-- Users -->
     <div class="view" id="view-users" style="display:none;height:100%;flex-direction:column;">
-      <div class="ghead"><div class="grow"><div class="gtile"><i class="ph-fill ph-users-three"></i></div><div style="flex:1"><h2>Users</h2><div class="gdesc">Who can see and change what in this workspace</div></div><button class="btn primary sm" onclick="openInviteUser()"><i class="ph ph-user-plus"></i> Invite</button></div><div style="height:10px"></div></div>
+      <div class="ghead"><div style="font-size:12px;color:var(--fg3);cursor:pointer;margin-bottom:8px;display:flex;align-items:center;gap:5px;" onclick="goBackView()"><i class="ph ph-arrow-left"></i> Back</div><div class="grow"><div class="gtile"><i class="ph-fill ph-users-three"></i></div><div style="flex:1"><h2>Users</h2><div class="gdesc">Who can see and change what in this workspace</div></div><button class="btn primary sm" onclick="openInviteUser()"><i class="ph ph-user-plus"></i> Invite</button></div><div style="height:10px"></div></div>
       <div class="mainscroll"><div class="pagepad fadeup" id="usersbody"></div></div>
     </div>
     <!-- config / assistant home -->
     <div class="view" id="view-config" style="display:none;height:100%;flex-direction:column;">
-      <div class="ghead">
+      <div class="ghead"><div style="font-size:12px;color:var(--fg3);cursor:pointer;margin-bottom:8px;display:flex;align-items:center;gap:5px;" onclick="setView(&#39;home&#39;)"><i class="ph ph-arrow-left"></i> Home</div>
         <div class="grow">
           <div class="gtile"><i class="ph-fill ph-chat-circle-text"></i></div>
           <div style="flex:1;min-width:0">
@@ -230,7 +231,7 @@
           <div class="gtile" style="background:var(--purple-100);border-color:var(--purple-300);color:var(--purple-800)"><i class="ph-fill ph-sparkle"></i></div>
           <div style="flex:1"><h2>Plans</h2>
           <div class="gdesc">Sandbox: free. Live traffic: enterprise contract.</div></div>
-          <button class="btn sm" onclick="setView('config')"><i class="ph ph-arrow-left"></i> Back</button>
+          <button class="btn sm" onclick="goBackView()"><i class="ph ph-arrow-left"></i> Back</button>
         </div>
         <div style="height:10px"></div>
       </div>
@@ -238,7 +239,7 @@
     </div>
     <!-- connections (in-shell) -->
     <div class="view" id="view-connections" style="display:none;height:100%;flex-direction:column;">
-      <div class="ghead">
+      <div class="ghead"><div style="font-size:12px;color:var(--fg3);cursor:pointer;margin-bottom:8px;display:flex;align-items:center;gap:5px;" onclick="goBackView()"><i class="ph ph-arrow-left"></i> Back</div>
         <div class="grow">
           <div class="gtile"><i class="ph-fill ph-plugs-connected"></i></div>
           <div style="flex:1"><h2>Connections</h2>

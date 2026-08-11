@@ -421,8 +421,8 @@ function applyFreshSeeds(){
   });
 }
 function setDemoState(s){
-  demoState=s; EXTRAS.length=0; NEEDS.length=0;
-  if(s==='fresh'){CH.chat=false; CH.where=null;} else {CH.chat=true; CH.where='website';}
+  demoState=s; EXTRAS.length=0; NEEDS.length=0; CUSTOM.length=0; CONN.appt=null;
+  if(s==='fresh'){CH.chat=false; CH.where='website';} else {CH.chat=true; CH.where='website';}
   if(s==='fresh') applyFreshSeeds(); else applyWorkedSeeds();
   curCat=null; dirty=false; persona='admin';
   const pp=document.getElementById('personapill'); if(pp) pp.textContent='View as r.patel';
@@ -469,24 +469,8 @@ S[0]=()=>{
     ${tile('vo','phone','Voice','Coming soon',false,"toast('Voice is coming soon')",true)}
     ${tile('em','envelope-simple','Email','Coming soon',false,"toast('Email is coming soon')",true)}
   </div>
-  <div id="wherewrap" style="display:${CH.chat?'block':'none'};" class="fadeup">
-    <div class="seclabel" style="margin-top:18px;">Where does the chat live?</div>
-    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(165px,1fr));gap:10px;">
-      ${tile('ww','globe','Website','northlakeauto.com',CH.where==='website',"wPick('website')",false)}
-      ${tile('wa','device-mobile','In our app','Uses your app login',CH.where==='app',"wPick('app')",false)}
-    </div>
-    <div id="placewrap" style="display:${CH.where==='website'?'block':'none'};" class="fadeup">
-      <div class="seclabel" style="margin-top:18px;">Who can open it?</div>
-      <div class="chips" id="placement">
-        <div class="chip on" data-p="public"><i class="ph ph-lock-simple-open" style="font-size:12px;margin-right:4px;"></i>Anyone, before login</div>
-        <div class="chip" data-p="login"><i class="ph ph-lock-simple" style="font-size:12px;margin-right:4px;"></i>Customers, after login</div>
-        <div class="chip" data-p="both"><i class="ph ph-arrows-left-right" style="font-size:12px;margin-right:4px;"></i>Both</div>
-      </div>
-      <div style="font-size:12px;color:var(--fg2);margin-top:9px;" id="placenote"><b>Before login:</b> anyone can chat. Before anything personal, the assistant verifies the customer - it matches them to their policy record and sends a one-time passcode to the phone or email on file.</div>
-    </div>
-  </div>
 </div>`;};
-function chPick(){ CH.chat=true; markDirty(); renderStep(); }
+function chPick(){ CH.chat=true; CH.where='website'; markDirty(); renderStep(); }
 function wPick(w){ CH.where=w; markDirty(); renderStep(); if(w==='app') toast('In-app chat uses your app login for identity'); }
 function catRowsHtml(){
   return CATS.map((c,i)=>{
@@ -652,7 +636,7 @@ function sopSection(i){
   const uploaded=docsFor(c.id);
   const live=(c.deps||[]).map(d=>'<span class="depchip '+(d[1]==='ok'?'ok':'miss')+'">'+d[0]+(d[1]==='ok'?' &#10003;':' · not connected')+'</span>').join(' ');
   return `<div class="card">
-    <div class="ct">Knowledge</div>
+    <div class="ct" style="justify-content:space-between;"><span>Knowledge</span><button class="btn sm" title="Open the library" onclick="openShelf()" style="font-weight:700;"><i class="ph ph-books" style="font-size:15px;"></i> Library</button></div>
     <div class="cs">Add documents, past conversations, or point at systems. Everything you add lands in the library below.</div>
     <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;font-size:11.5px;color:var(--fg3);margin-top:10px;">Also reads live sources: ${live} <button class="connectlink" onclick="goConnections()">Open Connections</button></div>
     <div id="soparse_${c.id}" style="margin-top:10px;"></div>
@@ -708,7 +692,7 @@ function kAsk(i){
     ? '<div class="apbub"><div>'+m.t+'</div></div>'
     : kEma(m.t)).join('') + (c.kthink?kThink():'');
   return `<div class="card" style="border-color:var(--purple-300);">
-    <div class="ct"><i class="ph-fill ph-sparkle" style="color:var(--purple-800)"></i> Knowledge</div>
+    <div class="ct" style="justify-content:space-between;"><span style="display:flex;gap:7px;align-items:center;"><i class="ph-fill ph-sparkle" style="color:var(--purple-800)"></i> Knowledge</span><button class="btn sm" title="Open the library" onclick="openShelf()" style="font-weight:700;"><i class="ph ph-books" style="font-size:15px;"></i> Library</button></div>
     ${kEma('Where do the rules on '+c.name.toLowerCase().replace('&amp;','and')+' live?')}
     <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px;">${pill('docs','Documents','file-text')}${pill('conv','Past conversations','phone-call')}${pill('ext','External systems','plugs-connected')}${pill('other','Somewhere else','chats-circle')}</div>
     ${follow}
@@ -1264,12 +1248,11 @@ function trainAIE(i){
   if(!docsFor(c.id).length){ toast('Add documents or conversations first'); return; }
   const box=document.getElementById('trainbox_'+c.id);
   const hasConv=docsFor(c.id).some(d=>d.pill==='Transcripts');
-  box.innerHTML=`<div class="loaderbox" style="margin-bottom:12px;text-align:left;padding:16px 18px;"><div style="display:flex;gap:10px;align-items:center;margin-bottom:8px;"><div class="spin" style="margin:0;width:16px;height:16px;"></div><b style="font-size:12.5px;">Training&hellip;</b></div>
-    <div class="lline" id="tr1">Reading your documents&hellip;</div>
-    <div class="lline" id="tr2">${hasConv?'Reading 214 conversations&hellip;':'Reading the regulation pack&hellip;'}</div>
-    <div class="lline" id="tr3">Drafting query types and rules&hellip;</div>
-    <div class="lline" id="tr4">Checking your documents against your practice&hellip;</div></div>`;
-  [250,1100,2100,3100].forEach((t,n)=>setTimeout(()=>{const e=document.getElementById('tr'+(n+1)); if(e)e.classList.add('show');},t));
+  box.innerHTML='<div style="margin-bottom:14px;">'
+    +'<div style="display:flex;justify-content:space-between;font-size:11.5px;color:var(--fg3);margin-bottom:7px;"><span id="trlbl_'+c.id+'">Starting&hellip;</span><span id="trpct_'+c.id+'">0%</span></div>'
+    +'<div style="height:6px;background:var(--beige-200);border-radius:99px;overflow:hidden;"><div id="trbar_'+c.id+'" style="height:100%;width:2%;background:var(--purple-800);transition:width .6s ease;border-radius:99px;"></div></div></div>';
+  const phases=[[250,18,'Reading your documents&hellip;'],[1150,44,hasConv?'Reading 214 conversations&hellip;':'Reading the regulation pack&hellip;'],[2150,72,'Drafting query types and rules&hellip;'],[3150,94,'Checking your documents against your practice&hellip;']];
+  phases.forEach(ph=>setTimeout(()=>{const b=document.getElementById('trbar_'+c.id),l=document.getElementById('trlbl_'+c.id),pc=document.getElementById('trpct_'+c.id); if(b)b.style.width=ph[1]+'%'; if(l)l.innerHTML=ph[2]; if(pc)pc.textContent=ph[1]+'%';},ph[0]));
   setTimeout(()=>{
     c.trained=true; c.tres={}; c.rulesOpen=true;
     const sim=TRAINSIM[c.id];
@@ -1372,7 +1355,7 @@ function trainedTableCard(i){
   return `<div class="tblhead"><div>Type of query</div><div>Example questions</div><div>What Ema does</div><div>Other rules</div></div>${rows}`;
 }
 function updateLibBadge(){
-  ['libcount','libcount2'].forEach(id=>{const b=document.getElementById(id); if(b){b.textContent=DOCS.length; b.style.display=DOCS.length?'inline-flex':'none';}});
+  ['libcount','libcount2','libcount3'].forEach(id=>{const b=document.getElementById(id); if(b){b.textContent=DOCS.length; b.style.display=DOCS.length?'inline-flex':'none';}});
   const m=document.getElementById('libmeta'); if(m) m.textContent=DOCS.length+' source'+(DOCS.length===1?'':'s');
 }
 function shelfRow(d){
@@ -1770,6 +1753,14 @@ function connectionsBody(){
   ${connCardHtml('web','globe','Your website','northlakeauto.com · crawled at signup, re-crawled weekly','<span class="badge success"><i class="ph-bold ph-check"></i> Connected</span><span style="color:var(--fg3)">42 articles</span>','<span class="badge success" style="height:18px"><i class="ph-bold ph-check-circle"></i> Connected</span>')}
 </div>
 <div class="card" style="margin-top:14px;">
+  <div class="ct" style="justify-content:space-between;"><span>Made in your workspace</span><button class="btn sm primary" onclick="niStart()"><i class="ph ph-plus"></i> New integration</button></div>
+  <div class="cs">Anything with an API can become a connector. Ema drafts the tools; you publish them.</div>
+  <div id="customlist">${customListHtml()}</div>
+  <div style="display:flex;gap:7px;flex-wrap:wrap;align-items:center;margin-top:10px;font-size:11.5px;color:var(--fg3);">From the catalogue:
+    ${['Zendesk','Stripe','Twilio','Snowflake','Duck Creek'].map(n=>'<div class="apchip" onclick="niCatalog(&#39;'+n+'&#39;)"><i class="ph ph-plus"></i>'+n+'</div>').join('')}
+  </div>
+</div>
+<div class="card" style="margin-top:14px;">
   <div class="ct" style="cursor:pointer;justify-content:space-between;" onclick="gkTog('gkit')"><span>Invite your IT team</span><i id="c_gkit" class="ph ph-caret-down"></i></div>
   <div class="cs" style="margin-bottom:0;">Integration admins see Connections only.</div>
   <div id="gkit" style="display:none;margin-top:12px;">
@@ -1783,6 +1774,120 @@ function connectionsBody(){
   <div id="gksand" style="display:none;margin-top:10px;font-size:12.5px;color:var(--fg2);">Lookups, identity checks and payments all behave like production. ${enterprise?'Your production policy source connects through Guidewire above, under your signed data-processing agreement.':'Real data connects after your contract.'}</div>
 </div>`;
 }
+/* TRAIN-FLOW-4 custom integrations */
+const CUSTOM=[];
+function niEyebrow(k,t){return '<div style="font-size:10.5px;font-weight:700;letter-spacing:.05em;color:var(--beige-800);text-transform:uppercase;margin-bottom:4px;">Setup · '+k+' of 4 · '+t+'</div>';}
+function customListHtml(){
+  if(!CUSTOM.length) return '<div class="cs" style="margin-bottom:2px;">Nothing built yet. Anything your rules need and the catalogue lacks starts here.</div>';
+  return CUSTOM.map((x,xi)=>{
+    const right = x.status==='connected'
+      ? '<span class="badge success" style="height:18px"><i class="ph-bold ph-check-circle"></i> Connected</span><span style="font-size:11px;color:var(--fg3);margin-left:8px;">'+x.tools.length+' tool'+(x.tools.length===1?'':'s')+'</span>'
+      : '<span class="badge pending" style="height:18px">Draft</span><button class="connectlink" style="margin-left:8px;" onclick="niResume('+xi+')">Complete setup · '+x.step+' of 4</button>';
+    return '<div class="uplrow"><span class="qic" style="background:var(--beige-960);color:#fff;font-size:11px;font-weight:800;">&lt;/&gt;</span>'
+      +'<div style="flex:1;min-width:0"><div style="font-size:12.5px;font-weight:700;">'+x.name+'</div>'
+      +'<div style="font-size:11px;color:var(--fg3);">'+x.kind+' · '+x.desc+'</div></div>'+right+'</div>';
+  }).join('');
+}
+function niCatalog(n){
+  CUSTOM.push({name:n, desc:'From the catalogue', kind:'Catalogue', cat:'Custom', step:1, tools:[], status:'draft'});
+  renderConnSurface(); toast(n+' added as a draft');
+}
+function niStart(){
+  const row=(ic,t,s,k)=>'<div class="catrow" onclick="niAbout(&#39;'+k+'&#39;)" style="padding:13px 15px;"><span class="ctile"><i class="ph ph-'+ic+'"></i></span>'
+    +'<div style="flex:1"><div class="cname" style="font-size:13px;">'+t+'</div><div class="cmeta">'+s+'</div></div><i class="ph ph-caret-right"></i></div>';
+  openModal(`
+    <div class="mt">New integration</div>
+    <div class="ms">Three ways in. All of them end with published tools your rules can use.</div>
+    ${row('code','REST API','Describe the API or paste an OpenAPI spec. Ema drafts the tools.','REST API')}
+    ${row('plugs','MCP Server','Point Ema at an MCP server and pick which tools to expose.','MCP Server')}
+    ${row('download-simple','Import integration','Upload an integration exported from another workspace.','Import')}
+    <div class="mfoot"><button class="btn" onclick="closeModal()">Cancel</button></div>`,true);
+}
+function niAbout(kind){
+  openModal(`
+    ${niEyebrow(1,'About')}
+    <div class="mt">Name it</div>
+    <div class="ms">A name and one line on what it reaches. Category helps others find it.</div>
+    <div class="mlabel">Display name <span class="req">*</span></div>
+    <input type="text" id="niname" placeholder="Appointment Service">
+    <div class="mlabel">About</div>
+    <input type="text" id="nidesc" placeholder="Technician scheduling for claims visits">
+    <div class="mlabel">Category</div>
+    <select id="nicat"><option>Custom</option><option>Ticketing</option><option>CRM</option><option>Accounting</option><option>Analytics</option></select>
+    <div class="mfoot"><button class="btn" onclick="niStart()"><i class="ph ph-arrow-left"></i> Back</button>
+    <button class="btn primary" onclick="niCreate('${kind}')">Create</button></div>`,true);
+}
+function niCreate(kind){
+  const name=(document.getElementById('niname').value.trim())||'Appointment Service';
+  const desc=(document.getElementById('nidesc').value.trim())||'Technician scheduling for claims visits';
+  CUSTOM.push({name:name, desc:desc, kind:kind, cat:document.getElementById('nicat').value, step:1, tools:[], status:'draft'});
+  renderConnSurface(); toast('Draft created');
+  niAuth(CUSTOM.length-1);
+}
+function niResume(xi){ const x=CUSTOM[xi]; if(x.step===1) niAuth(xi); else if(x.step===2) niConns(xi); else niTools(xi); }
+function niAuth(xi){
+  openModal(`
+    ${niEyebrow(2,'Authentication')}
+    <div class="mt">How does it authenticate?</div>
+    <div class="ms">Pick the scheme. Secrets are stored encrypted and never shown again.</div>
+    <div class="chips" style="margin-bottom:10px;">
+      <div class="chip on">API key</div><div class="chip" onclick="toast('OAuth fields would swap in here')">OAuth 2.0</div><div class="chip" onclick="toast('Basic fields would swap in here')">Basic</div>
+    </div>
+    <div class="mlabel">Header name</div><input type="text" value="X-API-Key">
+    <div class="mlabel">API key</div><input type="text" value="••••••••••••••••">
+    <div class="mfoot"><button class="btn" onclick="closeModal()">Later</button>
+    <button class="btn primary" onclick="CUSTOM[${xi}].step=2;niConns(${xi})">Save scheme</button></div>`,true);
+}
+function niConns(xi){
+  openModal(`
+    ${niEyebrow(3,'Connections')}
+    <div class="mt">Add a workspace connection</div>
+    <div class="ms">One shared connection for the workspace. Personal connections can come later.</div>
+    <div class="mlabel">Connection name</div><input type="text" value="${CUSTOM[xi].name} · production">
+    <div class="mlabel">Base URL</div><input type="text" value="api.northlakeauto.com/scheduling/v2">
+    <div id="nitest"></div>
+    <div class="mfoot"><button class="btn" onclick="closeModal()">Later</button>
+    <button class="btn primary" id="nitestbtn" onclick="niTest(${xi})">Test &amp; save</button></div>`,true);
+}
+function niTest(xi){
+  const b=document.getElementById('nitest');
+  if(b) b.innerHTML='<div style="font-size:12px;color:var(--fg3);margin-top:10px;"><div class="spin" style="width:13px;height:13px;display:inline-block;vertical-align:-2px;margin-right:7px;"></div>Getting a token, reading one record&hellip;</div>';
+  setTimeout(()=>{
+    if(b) b.innerHTML='<div style="font-size:12px;color:var(--green-800);margin-top:10px;"><i class="ph-bold ph-check"></i> Token OK · sample read OK · 122ms</div>';
+    setTimeout(()=>{ CUSTOM[xi].step=3; niTools(xi); },700);
+  },1000);
+}
+function niTools(xi){
+  openModal(`
+    ${niEyebrow(4,'Tools')}
+    <div class="mt">What should Ema be able to do?</div>
+    <div class="ms">Say it in your own words, or paste an OpenAPI spec. Ema drafts one tool per action.</div>
+    <textarea rows="2" id="nido">Check technician availability. Rebook a visit. Cancel a visit.</textarea>
+    <div id="nidraft"></div>
+    <div class="mfoot"><button class="btn" onclick="closeModal()">Later</button>
+    <button class="btn primary" id="nidraftbtn" onclick="niDraft(${xi})"><i class="ph-fill ph-sparkle"></i> Draft tools</button></div>`,true);
+}
+function niDraft(xi){
+  const b=document.getElementById('nidraft');
+  const btn=document.getElementById('nidraftbtn');
+  if(btn) btn.style.display='none';
+  if(b) b.innerHTML='<div style="font-size:12px;color:var(--fg3);margin-top:10px;"><div class="spin" style="width:13px;height:13px;display:inline-block;vertical-align:-2px;margin-right:7px;"></div>Reading the API, drafting tools&hellip;</div>';
+  setTimeout(()=>{
+    const tools=[['get_availability','Reads open slots by region and date','ok'],['rebook_visit','Moves a visit to a new slot, returns confirmation','ok'],['cancel_visit','Cancels a visit, frees the slot','ok']];
+    CUSTOM[xi].tools=tools.map(t=>t[0]);
+    if(b) b.innerHTML='<div style="margin-top:10px;">'
+      +tools.map(t=>'<div style="display:flex;gap:8px;align-items:center;padding:7px 0;border-bottom:1px solid var(--beige-200);font-size:12px;"><i class="ph-bold ph-check-circle" style="color:var(--green-800)"></i><b style="font-family:monospace;font-size:11.5px;">'+t[0]+'</b><span style="color:var(--fg3);flex:1;">'+t[1]+'</span><span class="badge success" style="height:16px;font-size:9.5px;">dry run</span></div>').join('')
+      +'</div><div class="mfoot"><button class="btn primary" onclick="niPublish('+xi+')">Publish 3 tools</button></div>';
+  },1400);
+}
+function niPublish(xi){
+  const x=CUSTOM[xi]; x.step=4; x.status='connected';
+  if(/appointment|schedul/i.test(x.name)) CONN.appt='connected';
+  if(/payment|stripe/i.test(x.name)) CONN.pay='connected';
+  closeModal(); markDirty(); renderConnSurface(); refreshCat();
+  toast('Published · '+x.tools.length+' tools live');
+}
+/* /TRAIN-FLOW-4 */
 S[3]=()=>connectionsBody();
 function renderConnections(){
   const st=document.getElementById('steps');
